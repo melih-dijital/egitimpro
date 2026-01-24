@@ -338,7 +338,7 @@ class LockedPanelScreen extends StatelessWidget {
           const SizedBox(height: 4),
           // Version
           Text(
-            'Versiyon 1.0.0',
+            'Versiyon 1.0.1',
             style: TextStyle(fontSize: 11, color: DutyPlannerColors.textHint),
             textAlign: TextAlign.center,
           ),
