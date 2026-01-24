@@ -46,8 +46,9 @@ class MyApp extends StatelessWidget {
       ],
       supportedLocales: const [Locale('tr', 'TR'), Locale('en', 'US')],
       locale: const Locale('tr', 'TR'),
-      home: const AuthGate(child: MainMenuScreen()),
+      initialRoute: '/',
       routes: {
+        '/': (context) => const AuthGate(child: MainMenuScreen()),
         '/login': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
         '/profile': (context) => const ProfileScreen(),
