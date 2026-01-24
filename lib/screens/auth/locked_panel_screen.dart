@@ -456,59 +456,68 @@ class _AnimatedLockedCardState extends State<_AnimatedLockedCard>
               ),
             ),
             // Animasyonlu kilit overlay
-            AnimatedBuilder(
-              animation: _controller,
-              builder: (context, child) {
-                // Kartın boyutlarını al
-                return LayoutBuilder(
-                  builder: (context, constraints) {
-                    // Başlangıç pozisyonu: sağ üst köşe
-                    const double startTop = 8;
-                    const double startRight = 8;
+            Positioned.fill(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return AnimatedBuilder(
+                    animation: _controller,
+                    builder: (context, child) {
+                      // Kartın boyutları
+                      final double cardWidth = constraints.maxWidth;
+                      final double cardHeight = constraints.maxHeight > 0
+                          ? constraints.maxHeight
+                          : 80;
 
-                    // Bitiş pozisyonu: kartın ortası
-                    final double cardWidth = constraints.maxWidth;
-                    final double cardHeight = 80; // Yaklaşık kart yüksekliği
-                    final double endLeft = (cardWidth - 40) / 2;
-                    final double endTop = (cardHeight - 40) / 2;
+                      // Başlangıç pozisyonu: sağ üst köşe
+                      const double startTop = 8;
+                      const double startRight = 8;
 
-                    // Mevcut pozisyon hesapla
-                    final double currentRight =
-                        startRight +
-                        (cardWidth - startRight - endLeft - 40) *
-                            (1 - _positionAnimation.value);
-                    final double currentTop =
-                        startTop +
-                        (endTop - startTop) * _positionAnimation.value;
+                      // Bitiş pozisyonu: kartın ortası
+                      final double endLeft = (cardWidth - 40) / 2;
+                      final double endTop = (cardHeight - 40) / 2;
 
-                    return Positioned(
-                      top: currentTop,
-                      right: _positionAnimation.value < 0.5
-                          ? currentRight
-                          : null,
-                      left: _positionAnimation.value >= 0.5
-                          ? endLeft * _positionAnimation.value * 2 - endLeft
-                          : null,
-                      child: Transform.scale(
-                        scale: _scaleAnimation.value,
-                        child: Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            // Renk değişimi yok - sadece büyüme
-                            color: Colors.black.withValues(alpha: 0.6),
-                            borderRadius: BorderRadius.circular(8),
+                      // Mevcut pozisyon hesapla
+                      final double currentRight =
+                          startRight +
+                          (cardWidth - startRight - endLeft - 40) *
+                              (1 - _positionAnimation.value);
+                      final double currentTop =
+                          startTop +
+                          (endTop - startTop) * _positionAnimation.value;
+
+                      return Stack(
+                        children: [
+                          Positioned(
+                            top: currentTop,
+                            right: _positionAnimation.value < 0.5
+                                ? currentRight
+                                : null,
+                            left: _positionAnimation.value >= 0.5
+                                ? endLeft * _positionAnimation.value * 2 -
+                                      endLeft
+                                : null,
+                            child: Transform.scale(
+                              scale: _scaleAnimation.value,
+                              child: Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withValues(alpha: 0.6),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: const Icon(
+                                  Icons.lock,
+                                  color: Colors.white,
+                                  size: 18,
+                                ),
+                              ),
+                            ),
                           ),
-                          child: const Icon(
-                            Icons.lock,
-                            color: Colors.white,
-                            size: 18,
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
+                        ],
+                      );
+                    },
+                  );
+                },
+              ),
             ),
           ],
         ),
