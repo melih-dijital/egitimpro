@@ -1,5 +1,4 @@
-/// Section Entry Screen
-/// Şube ekleme ekranı
+// Section Entry Screen - Şube ekleme ekranı
 
 import 'package:flutter/material.dart';
 import '../../models/butterfly_exam_models.dart';

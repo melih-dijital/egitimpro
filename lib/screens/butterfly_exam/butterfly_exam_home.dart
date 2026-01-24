@@ -1,5 +1,4 @@
-/// Butterfly Exam Home Screen
-/// Kelebek sınav sistemi ana ekranı - adım wizard
+// Butterfly Exam Home Screen - Kelebek sınav sistemi ana ekranı - adım wizard
 
 import 'package:flutter/material.dart';
 import '../../models/butterfly_exam_models.dart';

@@ -1,5 +1,4 @@
-/// Room Config Screen
-/// Sınav salonu yapılandırma ekranı - Her salon için ayrı sıra düzeni
+// Room Config Screen - Sınav salonu yapılandırma ekranı - Her salon için ayrı sıra düzeni
 
 import 'package:flutter/material.dart';
 import '../../models/butterfly_exam_models.dart';

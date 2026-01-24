@@ -1,9 +1,11 @@
-/// Distribution Screen
-/// Dağıtım sonucu ve oturma planı ekranı
+// Distribution Screen - Dağıtım sonucu ve oturma planı ekranı
 
 import 'package:flutter/material.dart';
-import 'dart:html' as html;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import '../../models/butterfly_exam_models.dart';
+import 'distribution_export_io.dart'
+    if (dart.library.html) 'distribution_export_web.dart'
+    as export_helper;
 import '../../services/butterfly_exam_service.dart';
 import '../../services/exam_pdf_service.dart';
 import '../../theme/duty_planner_theme.dart';
@@ -656,16 +658,19 @@ class _DistributionScreenState extends State<DistributionScreen> {
         plan: widget.generatedPlan!,
       );
 
-      // Web için indirme
-      final blob = html.Blob([pdfBytes], 'application/pdf');
-      final url = html.Url.createObjectUrlFromBlob(blob);
-      html.AnchorElement(href: url)
-        ..setAttribute(
-          'download',
-          'sinav_oturma_plani_${DateTime.now().millisecondsSinceEpoch}.pdf',
-        )
-        ..click();
-      html.Url.revokeObjectUrl(url);
+      final fileName =
+          'sinav_oturma_plani_${DateTime.now().millisecondsSinceEpoch}.pdf';
+
+      if (kIsWeb) {
+        // Web için indirme
+        export_helper.downloadPdf(pdfBytes, fileName);
+      } else {
+        // Native platformlar için printing paketi kullanılır
+        // Bu özellik henüz desteklenmiyor
+        throw UnsupportedError(
+          'PDF indirme şu an sadece web\'de desteklenmektedir.',
+        );
+      }
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

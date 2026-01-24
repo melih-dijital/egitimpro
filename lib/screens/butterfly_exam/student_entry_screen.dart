@@ -1,5 +1,4 @@
-/// Student Entry Screen
-/// Öğrenci ekleme ekranı - Ad, Soyad, Sınıf, Şube
+// Student Entry Screen - Öğrenci ekleme ekranı - Ad, Soyad, Sınıf, Şube
 
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
@@ -545,8 +544,9 @@ class _StudentEntryScreenState extends State<StudentEntryScreen> {
                       );
                     }).toList(),
                     onChanged: (value) {
-                      if (value != null)
+                      if (value != null) {
                         setState(() => _selectedSection = value);
+                      }
                     },
                   ),
                 ),
