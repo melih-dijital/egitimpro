@@ -1,5 +1,7 @@
 Acil Yapılacaklar:
 Okul Yönetimi Salon kaydı yapılırken salonu canlı olarak önizleme eklenecek.
+Clasude Opus ile ikonları düzeltme kilit.
+
 
 
 
