@@ -3,10 +3,12 @@ const MANIFEST = 'flutter-app-manifest';
 const TEMP = 'flutter-temp-cache';
 const CACHE_NAME = 'flutter-app-cache';
 
-const RESOURCES = {"assets/AssetManifest.bin": "693635b5258fe5f1cda720cf224f158c",
-"assets/AssetManifest.bin.json": "69a99f98c8b1fb8111c5fb961769fcd8",
+const RESOURCES = {"assets/AssetManifest.bin": "43338579a56b579f7cf04d7519e31f90",
+"assets/AssetManifest.bin.json": "be27b32545a8e3da1a200ff4ac108f38",
+"assets/assets/fonts/Roboto-Bold.ttf": "a68db3b33213fa138e6f72a5b76ac632",
+"assets/assets/fonts/Roboto-Regular.ttf": "8f793587dcf03f31c551c5b60d175fc2",
 "assets/FontManifest.json": "dc3d03800ccca4601324923c0b1d6d57",
-"assets/fonts/MaterialIcons-Regular.otf": "867bb926fdbb7b1d360dc62e1aaa49b4",
+"assets/fonts/MaterialIcons-Regular.otf": "697662bfec84e3ebc41067277c9e32f2",
 "assets/NOTICES": "dcb68174431b1549621e0a5f2d045e28",
 "assets/packages/cupertino_icons/assets/CupertinoIcons.ttf": "33b7d9392238c04c131b6ce224e13711",
 "assets/shaders/ink_sparkle.frag": "ecc85a2e95f5e9f53123dcaf8cb9b6ce",
@@ -25,14 +27,14 @@ const RESOURCES = {"assets/AssetManifest.bin": "693635b5258fe5f1cda720cf224f158c
 "canvaskit/skwasm_heavy.wasm": "b0be7910760d205ea4e011458df6ee01",
 "favicon.png": "5dcef449791fa27946b3d35ad8803796",
 "flutter.js": "24bc71911b75b5f8135c949e27a2984e",
-"flutter_bootstrap.js": "5241453018ba93d92178a970b77ba9df",
+"flutter_bootstrap.js": "0b4e299dfcbd8235dad98453ad00c554",
 "icons/Icon-192.png": "ac9a721a12bbc803b44f645561ecb1e1",
 "icons/Icon-512.png": "96e752610906ba2a93c65f8abe1645f1",
 "icons/Icon-maskable-192.png": "c457ef57daa1d16f64b27b786ec2ea3c",
 "icons/Icon-maskable-512.png": "301a7604d45b3e739efc881eb04896ea",
-"index.html": "a48b3956e79ef769ba3c143c94ad89c1",
-"/": "a48b3956e79ef769ba3c143c94ad89c1",
-"main.dart.js": "c9e7856d4c4ada6982d19410491af2f9",
+"index.html": "8fbe03acb1e50564281c7112a8914cb0",
+"/": "8fbe03acb1e50564281c7112a8914cb0",
+"main.dart.js": "46cf4070da5a0581a65346218a6a7560",
 "manifest.json": "d9f16ea7162cb4cffee1bce1500b6f72",
 "version.json": "7855ab4ac981ccfdcfec9ac4e44e5cd6"};
 // The application shell files that are downloaded before a service worker can
