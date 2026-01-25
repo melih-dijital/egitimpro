@@ -371,6 +371,7 @@ class _AnimatedLockedCardState extends State<_AnimatedLockedCard>
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
   late Animation<double> _positionAnimation;
+  late Animation<Color?> _colorAnimation;
 
   @override
   void initState() {
@@ -388,6 +389,11 @@ class _AnimatedLockedCardState extends State<_AnimatedLockedCard>
     _positionAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
+
+    _colorAnimation = ColorTween(
+      begin: Colors.white,
+      end: Colors.amber,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
   }
 
@@ -504,9 +510,9 @@ class _AnimatedLockedCardState extends State<_AnimatedLockedCard>
                                   color: Colors.black.withValues(alpha: 0.6),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
-                                child: const Icon(
+                                child: Icon(
                                   Icons.lock,
-                                  color: Colors.white,
+                                  color: _colorAnimation.value,
                                   size: 18,
                                 ),
                               ),
