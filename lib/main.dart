@@ -76,47 +76,151 @@ class MainMenuScreen extends StatelessWidget {
         title: const Text('OkulAsistan Pro'),
         centerTitle: true,
         actions: [
-          // Kullanıcı menüsü
+          // Kullanıcı menüsü - Tıklamayla açılan dropdown
           PopupMenuButton<String>(
-            icon: CircleAvatar(
-              backgroundColor: DutyPlannerColors.primaryLight,
-              child: Text(
-                user?.email?.substring(0, 1).toUpperCase() ?? 'U',
-                style: const TextStyle(
-                  color: DutyPlannerColors.primary,
-                  fontWeight: FontWeight.bold,
+            offset: const Offset(0, 50),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            icon: Container(
+              padding: const EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: DutyPlannerColors.primary.withValues(alpha: 0.3),
+                  width: 2,
+                ),
+              ),
+              child: CircleAvatar(
+                backgroundColor: DutyPlannerColors.primaryLight,
+                radius: 16,
+                child: Text(
+                  user?.email?.substring(0, 1).toUpperCase() ?? 'U',
+                  style: const TextStyle(
+                    color: DutyPlannerColors.primary,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
                 ),
               ),
             ),
             onSelected: (value) async {
-              if (value == 'logout') {
-                await authService.signOut();
+              switch (value) {
+                case 'profile':
+                  Navigator.pushNamed(context, '/profile');
+                  break;
+                case 'settings':
+                  Navigator.pushNamed(context, '/profile');
+                  break;
+                case 'logout':
+                  await authService.signOut();
+                  break;
               }
             },
             itemBuilder: (context) => [
-              PopupMenuItem(
+              // Kullanıcı bilgisi header
+              PopupMenuItem<String>(
                 enabled: false,
-                child: Text(
-                  user?.email ?? 'Kullanıcı',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: DutyPlannerColors.textPrimary,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        backgroundColor: DutyPlannerColors.primaryLight,
+                        radius: 20,
+                        child: Text(
+                          user?.email?.substring(0, 1).toUpperCase() ?? 'U',
+                          style: const TextStyle(
+                            color: DutyPlannerColors.primary,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              user?.userMetadata?['display_name'] ??
+                                  'Kullanıcı',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                                color: DutyPlannerColors.textPrimary,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              user?.email ?? '',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: DutyPlannerColors.textSecondary,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
               const PopupMenuDivider(),
-              const PopupMenuItem(
+              // Profilim
+              PopupMenuItem<String>(
+                value: 'profile',
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.person_outline,
+                      size: 20,
+                      color: DutyPlannerColors.textSecondary,
+                    ),
+                    const SizedBox(width: 12),
+                    const Text('Profilim'),
+                  ],
+                ),
+              ),
+              // Ayarlar
+              PopupMenuItem<String>(
+                value: 'settings',
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.settings_outlined,
+                      size: 20,
+                      color: DutyPlannerColors.textSecondary,
+                    ),
+                    const SizedBox(width: 12),
+                    const Text('Ayarlar'),
+                  ],
+                ),
+              ),
+              const PopupMenuDivider(),
+              // Çıkış Yap
+              PopupMenuItem<String>(
                 value: 'logout',
                 child: Row(
                   children: [
-                    Icon(Icons.logout, color: DutyPlannerColors.error),
-                    SizedBox(width: 8),
-                    Text('Çıkış Yap'),
+                    Icon(
+                      Icons.logout,
+                      size: 20,
+                      color: DutyPlannerColors.error,
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      'Çıkış Yap',
+                      style: TextStyle(color: DutyPlannerColors.error),
+                    ),
                   ],
                 ),
               ),
             ],
           ),
+          const SizedBox(width: 8),
         ],
       ),
       body: SingleChildScrollView(
