@@ -1,5 +1,7 @@
 """
 ReportLab ile sınıf bazlı haftalık ders programı PDF oluşturma.
+
+PDF yolu: files/{school_id}/{schedule_run_id}/{classroom_name}.pdf
 """
 
 import os
@@ -15,11 +17,13 @@ DAY_NAMES = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma"]
 FILES_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "files")
 
 
-def _ensure_dir():
-    os.makedirs(FILES_DIR, exist_ok=True)
+def _ensure_dir(path: str):
+    os.makedirs(path, exist_ok=True)
 
 
 def generate_classroom_pdf(
+    school_id: int,
+    schedule_run_id: int,
     classroom_name: str,
     school_name: str,
     entries: list[dict],
@@ -30,14 +34,17 @@ def generate_classroom_pdf(
 
     entries: [{day, hour, course_name, teacher_name}, ...]
 
-    Returns: (dosya_yolu, dosya_adı)
+    Returns: (dosya_yolu, relative_path)
+        relative_path: {school_id}/{run_id}/{filename}  → URL'de kullanılır
     """
-    _ensure_dir()
+    # Dizin yapısı: files/{school_id}/{run_id}/
+    run_dir = os.path.join(FILES_DIR, str(school_id), str(schedule_run_id))
+    _ensure_dir(run_dir)
 
-    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
     safe_name = classroom_name.replace(" ", "_").replace("/", "_")
-    filename = f"program_{safe_name}_{timestamp}.pdf"
-    filepath = os.path.join(FILES_DIR, filename)
+    filename = f"{safe_name}.pdf"
+    filepath = os.path.join(run_dir, filename)
+    relative_path = f"{school_id}/{schedule_run_id}/{filename}"
 
     doc = SimpleDocTemplate(
         filepath,
@@ -154,4 +161,4 @@ def generate_classroom_pdf(
     ]
 
     doc.build(elements)
-    return filepath, filename
+    return filepath, relative_path

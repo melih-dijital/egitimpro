@@ -8,6 +8,7 @@ class Teacher(Base):
     __tablename__ = "teachers"
 
     id = Column(Integer, primary_key=True, index=True)
+    school_id = Column(Integer, nullable=False, index=True)
     name = Column(String(200), nullable=False)
     unavailable_times = Column(JSON, default=list, nullable=False)
     # Format: [{"day": 0, "hour": 1}, {"day": 2, "hour": 3}, ...]
@@ -22,4 +23,4 @@ class Teacher(Base):
     schedules = relationship("Schedule", back_populates="teacher")
 
     def __repr__(self):
-        return f"<Teacher(id={self.id}, name='{self.name}')>"
+        return f"<Teacher(id={self.id}, name='{self.name}', school_id={self.school_id})>"

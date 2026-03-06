@@ -9,6 +9,7 @@ class TeacherCourse(Base):
 
     teacher_id = Column(Integer, ForeignKey("teachers.id", ondelete="CASCADE"), primary_key=True)
     course_id = Column(Integer, ForeignKey("courses.id", ondelete="CASCADE"), primary_key=True)
+    school_id = Column(Integer, nullable=False, index=True)
 
     teacher = relationship("Teacher", back_populates="teacher_courses")
     course = relationship("Course", back_populates="teacher_courses")

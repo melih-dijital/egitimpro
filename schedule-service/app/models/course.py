@@ -8,6 +8,7 @@ class Course(Base):
     __tablename__ = "courses"
 
     id = Column(Integer, primary_key=True, index=True)
+    school_id = Column(Integer, nullable=False, index=True)
     name = Column(String(200), nullable=False)
     weekly_hours = Column(Integer, nullable=False)  # Haftalık ders saati
     classroom_id = Column(Integer, ForeignKey("classrooms.id", ondelete="CASCADE"), nullable=False)
@@ -22,4 +23,4 @@ class Course(Base):
     schedules = relationship("Schedule", back_populates="course")
 
     def __repr__(self):
-        return f"<Course(id={self.id}, name='{self.name}', weekly_hours={self.weekly_hours})>"
+        return f"<Course(id={self.id}, name='{self.name}', school_id={self.school_id})>"

@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.database import get_db
+from app.auth import get_current_user
+from app.dependencies import get_school_id
 from app.models.teacher import Teacher
 from app.models.course import Course
 from app.models.teacher_course import TeacherCourse
@@ -11,13 +13,26 @@ router = APIRouter()
 
 
 @router.post("/", response_model=TeacherCourseResponse, status_code=201)
-def assign_teacher_to_course(data: TeacherCourseCreate, db: Session = Depends(get_db)):
+def assign_teacher_to_course(
+    data: TeacherCourseCreate,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+    school_id: int = Depends(get_school_id),
+):
     """Öğretmeni derse ata."""
-    teacher = db.query(Teacher).filter(Teacher.id == data.teacher_id).first()
+    teacher = (
+        db.query(Teacher)
+        .filter(Teacher.id == data.teacher_id, Teacher.school_id == school_id)
+        .first()
+    )
     if not teacher:
         raise HTTPException(status_code=404, detail="Öğretmen bulunamadı")
 
-    course = db.query(Course).filter(Course.id == data.course_id).first()
+    course = (
+        db.query(Course)
+        .filter(Course.id == data.course_id, Course.school_id == school_id)
+        .first()
+    )
     if not course:
         raise HTTPException(status_code=404, detail="Ders bulunamadı")
 
@@ -27,13 +42,18 @@ def assign_teacher_to_course(data: TeacherCourseCreate, db: Session = Depends(ge
         .filter(
             TeacherCourse.teacher_id == data.teacher_id,
             TeacherCourse.course_id == data.course_id,
+            TeacherCourse.school_id == school_id,
         )
         .first()
     )
     if existing:
         raise HTTPException(status_code=409, detail="Bu eşleştirme zaten mevcut")
 
-    assignment = TeacherCourse(teacher_id=data.teacher_id, course_id=data.course_id)
+    assignment = TeacherCourse(
+        teacher_id=data.teacher_id,
+        course_id=data.course_id,
+        school_id=school_id,
+    )
     db.add(assignment)
     db.commit()
 
@@ -46,9 +66,21 @@ def assign_teacher_to_course(data: TeacherCourseCreate, db: Session = Depends(ge
 
 
 @router.get("/", response_model=list[TeacherCourseResponse])
-def list_assignments(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+def list_assignments(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+    school_id: int = Depends(get_school_id),
+):
     """Tüm öğretmen-ders eşleştirmelerini listele."""
-    assignments = db.query(TeacherCourse).offset(skip).limit(limit).all()
+    assignments = (
+        db.query(TeacherCourse)
+        .filter(TeacherCourse.school_id == school_id)
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
     result = []
     for a in assignments:
         teacher = db.query(Teacher).filter(Teacher.id == a.teacher_id).first()
@@ -63,13 +95,20 @@ def list_assignments(skip: int = 0, limit: int = 100, db: Session = Depends(get_
 
 
 @router.delete("/{teacher_id}/{course_id}", status_code=204)
-def remove_assignment(teacher_id: int, course_id: int, db: Session = Depends(get_db)):
+def remove_assignment(
+    teacher_id: int,
+    course_id: int,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+    school_id: int = Depends(get_school_id),
+):
     """Öğretmen-ders eşleştirmesini kaldır."""
     assignment = (
         db.query(TeacherCourse)
         .filter(
             TeacherCourse.teacher_id == teacher_id,
             TeacherCourse.course_id == course_id,
+            TeacherCourse.school_id == school_id,
         )
         .first()
     )

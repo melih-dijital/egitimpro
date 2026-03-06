@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session, joinedload
 
 from app.database import get_db
+from app.auth import get_current_user
+from app.dependencies import get_school_id
 from app.models.course import Course
 from app.models.classroom import Classroom
 from app.schemas.course import CourseCreate, CourseUpdate, CourseResponse
@@ -20,13 +22,22 @@ def _enrich(course: Course) -> dict:
 
 
 @router.post("/", response_model=CourseResponse, status_code=201)
-def create_course(data: CourseCreate, db: Session = Depends(get_db)):
+def create_course(
+    data: CourseCreate,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+    school_id: int = Depends(get_school_id),
+):
     """Yeni ders ekle."""
-    classroom = db.query(Classroom).filter(Classroom.id == data.classroom_id).first()
+    classroom = (
+        db.query(Classroom)
+        .filter(Classroom.id == data.classroom_id, Classroom.school_id == school_id)
+        .first()
+    )
     if not classroom:
         raise HTTPException(status_code=404, detail="Sınıf bulunamadı")
 
-    course = Course(**data.model_dump())
+    course = Course(school_id=school_id, **data.model_dump())
     db.add(course)
     db.commit()
     db.refresh(course)
@@ -41,11 +52,18 @@ def create_course(data: CourseCreate, db: Session = Depends(get_db)):
 
 
 @router.get("/", response_model=list[CourseResponse])
-def list_courses(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+def list_courses(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+    school_id: int = Depends(get_school_id),
+):
     """Tüm dersleri listele."""
     courses = (
         db.query(Course)
         .options(joinedload(Course.classroom))
+        .filter(Course.school_id == school_id)
         .offset(skip)
         .limit(limit)
         .all()
@@ -54,12 +72,17 @@ def list_courses(skip: int = 0, limit: int = 100, db: Session = Depends(get_db))
 
 
 @router.get("/{course_id}", response_model=CourseResponse)
-def get_course(course_id: int, db: Session = Depends(get_db)):
+def get_course(
+    course_id: int,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+    school_id: int = Depends(get_school_id),
+):
     """Ders detayını getir."""
     course = (
         db.query(Course)
         .options(joinedload(Course.classroom))
-        .filter(Course.id == course_id)
+        .filter(Course.id == course_id, Course.school_id == school_id)
         .first()
     )
     if not course:
@@ -68,16 +91,31 @@ def get_course(course_id: int, db: Session = Depends(get_db)):
 
 
 @router.put("/{course_id}", response_model=CourseResponse)
-def update_course(course_id: int, data: CourseUpdate, db: Session = Depends(get_db)):
+def update_course(
+    course_id: int,
+    data: CourseUpdate,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+    school_id: int = Depends(get_school_id),
+):
     """Ders bilgilerini güncelle."""
-    course = db.query(Course).filter(Course.id == course_id).first()
+    course = (
+        db.query(Course)
+        .filter(Course.id == course_id, Course.school_id == school_id)
+        .first()
+    )
     if not course:
         raise HTTPException(status_code=404, detail="Ders bulunamadı")
 
     update_data = data.model_dump(exclude_unset=True)
 
     if "classroom_id" in update_data:
-        if not db.query(Classroom).filter(Classroom.id == update_data["classroom_id"]).first():
+        cl = (
+            db.query(Classroom)
+            .filter(Classroom.id == update_data["classroom_id"], Classroom.school_id == school_id)
+            .first()
+        )
+        if not cl:
             raise HTTPException(status_code=404, detail="Sınıf bulunamadı")
 
     for key, value in update_data.items():
@@ -96,9 +134,18 @@ def update_course(course_id: int, data: CourseUpdate, db: Session = Depends(get_
 
 
 @router.delete("/{course_id}", status_code=204)
-def delete_course(course_id: int, db: Session = Depends(get_db)):
+def delete_course(
+    course_id: int,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+    school_id: int = Depends(get_school_id),
+):
     """Dersi sil."""
-    course = db.query(Course).filter(Course.id == course_id).first()
+    course = (
+        db.query(Course)
+        .filter(Course.id == course_id, Course.school_id == school_id)
+        .first()
+    )
     if not course:
         raise HTTPException(status_code=404, detail="Ders bulunamadı")
     db.delete(course)

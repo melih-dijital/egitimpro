@@ -5,6 +5,8 @@ from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from sqlalchemy.orm import Session
 
 from app.database import get_db
+from app.auth import get_current_user
+from app.dependencies import get_school_id
 from app.models.teacher import Teacher
 from app.schemas.teacher import TeacherCreate, TeacherUpdate, TeacherResponse
 
@@ -16,11 +18,17 @@ MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 MB
 # ─── CRUD ─────────────────────────────────────────────────────────────────────
 
 @router.post("/", response_model=TeacherResponse, status_code=201)
-def create_teacher(data: TeacherCreate, db: Session = Depends(get_db)):
+def create_teacher(
+    data: TeacherCreate,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+    school_id: int = Depends(get_school_id),
+):
     """Yeni öğretmen ekle."""
     unavailable = [ut.model_dump() for ut in data.unavailable_times]
 
     teacher = Teacher(
+        school_id=school_id,
         name=data.name,
         max_daily_hours=data.max_daily_hours,
         unavailable_times=unavailable,
@@ -32,24 +40,55 @@ def create_teacher(data: TeacherCreate, db: Session = Depends(get_db)):
 
 
 @router.get("/", response_model=list[TeacherResponse])
-def list_teachers(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+def list_teachers(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+    school_id: int = Depends(get_school_id),
+):
     """Tüm öğretmenleri listele."""
-    return db.query(Teacher).offset(skip).limit(limit).all()
+    return (
+        db.query(Teacher)
+        .filter(Teacher.school_id == school_id)
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
 
 @router.get("/{teacher_id}", response_model=TeacherResponse)
-def get_teacher(teacher_id: int, db: Session = Depends(get_db)):
+def get_teacher(
+    teacher_id: int,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+    school_id: int = Depends(get_school_id),
+):
     """Öğretmen detayını getir."""
-    teacher = db.query(Teacher).filter(Teacher.id == teacher_id).first()
+    teacher = (
+        db.query(Teacher)
+        .filter(Teacher.id == teacher_id, Teacher.school_id == school_id)
+        .first()
+    )
     if not teacher:
         raise HTTPException(status_code=404, detail="Öğretmen bulunamadı")
     return teacher
 
 
 @router.put("/{teacher_id}", response_model=TeacherResponse)
-def update_teacher(teacher_id: int, data: TeacherUpdate, db: Session = Depends(get_db)):
+def update_teacher(
+    teacher_id: int,
+    data: TeacherUpdate,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+    school_id: int = Depends(get_school_id),
+):
     """Öğretmen bilgilerini güncelle."""
-    teacher = db.query(Teacher).filter(Teacher.id == teacher_id).first()
+    teacher = (
+        db.query(Teacher)
+        .filter(Teacher.id == teacher_id, Teacher.school_id == school_id)
+        .first()
+    )
     if not teacher:
         raise HTTPException(status_code=404, detail="Öğretmen bulunamadı")
 
@@ -70,9 +109,18 @@ def update_teacher(teacher_id: int, data: TeacherUpdate, db: Session = Depends(g
 
 
 @router.delete("/{teacher_id}", status_code=204)
-def delete_teacher(teacher_id: int, db: Session = Depends(get_db)):
+def delete_teacher(
+    teacher_id: int,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+    school_id: int = Depends(get_school_id),
+):
     """Öğretmeni sil."""
-    teacher = db.query(Teacher).filter(Teacher.id == teacher_id).first()
+    teacher = (
+        db.query(Teacher)
+        .filter(Teacher.id == teacher_id, Teacher.school_id == school_id)
+        .first()
+    )
     if not teacher:
         raise HTTPException(status_code=404, detail="Öğretmen bulunamadı")
     db.delete(teacher)
@@ -83,7 +131,12 @@ def delete_teacher(teacher_id: int, db: Session = Depends(get_db)):
 # ─── Bulk Upload ──────────────────────────────────────────────────────────────
 
 @router.post("/upload")
-async def upload_teachers(file: UploadFile = File(...), db: Session = Depends(get_db)):
+async def upload_teachers(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+    school_id: int = Depends(get_school_id),
+):
     """
     Excel (.xlsx) veya CSV dosyasından toplu öğretmen yükleme.
 
@@ -160,7 +213,12 @@ async def upload_teachers(file: UploadFile = File(...), db: Session = Depends(ge
                 })
                 continue
 
-            teacher = Teacher(name=name, max_daily_hours=max_hours, unavailable_times=[])
+            teacher = Teacher(
+                school_id=school_id,
+                name=name,
+                max_daily_hours=max_hours,
+                unavailable_times=[],
+            )
             db.add(teacher)
             db.flush()
 

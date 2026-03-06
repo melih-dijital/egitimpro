@@ -45,23 +45,32 @@ class ScheduleResult:
 
 # ───────────────────────────── Ana Fonksiyon ──────────────────────────────
 
-def generate_schedule(db_session: Session) -> ScheduleResult:
+def generate_schedule(db_session: Session, school_id: int) -> ScheduleResult:
     """
-    Veritabanındaki tüm Teacher, Course, TeacherCourse verilerini okur
+    Veritabanındaki tüm Teacher, Course, TeacherCourse verilerini okur (school_id filtreli)
     ve CP-SAT ile çakışmasız, dengeli bir haftalık program üretir.
     """
 
     num_days: int = settings.DAYS_PER_WEEK       # 5
     num_periods: int = settings.MAX_PERIODS_PER_DAY  # 8
 
-    # ── 1. Verileri yükle ──────────────────────────────────────────────────
-    teachers: list[Teacher] = db_session.query(Teacher).all()
+    # ── 1. Verileri yükle (school_id filtreli) ────────────────────────────
+    teachers: list[Teacher] = (
+        db_session.query(Teacher)
+        .filter(Teacher.school_id == school_id)
+        .all()
+    )
     courses: list[Course] = (
         db_session.query(Course)
         .options(joinedload(Course.classroom))
+        .filter(Course.school_id == school_id)
         .all()
     )
-    assignments: list[TeacherCourse] = db_session.query(TeacherCourse).all()
+    assignments: list[TeacherCourse] = (
+        db_session.query(TeacherCourse)
+        .filter(TeacherCourse.school_id == school_id)
+        .all()
+    )
 
     if not teachers:
         return ScheduleResult(False, [], "Hiç öğretmen tanımlanmamış.")
@@ -82,7 +91,6 @@ def generate_schedule(db_session: Session) -> ScheduleResult:
                 unavailable.add((t.id, slot["day"], slot["hour"]))
 
     # Her ders için atanmış öğretmen(ler) — birden fazla olabilir, solver seçer
-    # Ancak basit durumda her ders tek öğretmene atanmış olabilir
     course_teachers: dict[int, list[int]] = {}
     for a in assignments:
         course_teachers.setdefault(a.course_id, []).append(a.teacher_id)
@@ -117,14 +125,9 @@ def generate_schedule(db_session: Session) -> ScheduleResult:
             for p in periods:
                 x[(idx, d, p)] = model.new_bool_var(f"x_{idx}_d{d}_p{p}")
 
-    # Eğer bir dersin birden fazla öğretmeni varsa:
-    # Hangi öğretmenin hangi slotu vereceğini seçmek için
-    # y[course_id, d, p] = kimin girdiğini belirler (dolaylı, x üzerinden)
-
     # ── 3. Hard Constraints ────────────────────────────────────────────────
 
     # H1: Her dersin weekly_hours kadar slot'a atanması
-    # Bir dersin birden fazla öğretmeni varsa, toplamları weekly_hours olmalı
     courses_by_id: dict[int, list[int]] = {}  # course_id → [pair_idx, ...]
     for idx, t_id, c_id in active_pairs:
         courses_by_id.setdefault(c_id, []).append(idx)
@@ -199,8 +202,6 @@ def generate_schedule(db_session: Session) -> ScheduleResult:
         penalties.append(2 * spread)
 
     # S2: Aynı ders blok (ardışık saat) olarak verilsin
-    # Ardışık olmayan geçişlere ceza ver
-    # gap[idx, d, p] = x[idx,d,p] - x[idx,d,p+1] farkının mutlak değeri
     for c_id, pair_indices in courses_by_id.items():
         course = course_map[c_id]
         if course.weekly_hours <= 1:
@@ -209,11 +210,6 @@ def generate_schedule(db_session: Session) -> ScheduleResult:
         for idx in pair_indices:
             for d in days:
                 for p in range(1, num_periods):  # p, p+1 ardışık
-                    # x[p]=1, x[p+1]=0 → boşluk → ceza
-                    gap = model.new_bool_var(f"gap_{idx}_d{d}_p{p}")
-                    # gap = 1 iff x[idx,d,p]=1 AND x[idx,d,p+1]=0
-                    # Yani: ders var ama bir sonraki saatte yok (ve sonrasında tekrar var olabilir)
-                    # Basitleştirilmiş: ardışık olmama sayısını minimize et
                     diff = model.new_int_var(-1, 1, f"diff_{idx}_d{d}_p{p}")
                     model.add(diff == x[(idx, d, p)] - x[(idx, d, p + 1)])
                     abs_diff = model.new_int_var(0, 1, f"abs_{idx}_d{d}_p{p}")
@@ -226,7 +222,7 @@ def generate_schedule(db_session: Session) -> ScheduleResult:
 
     # ── 5. Solver ──────────────────────────────────────────────────────────
     solver = cp_model.CpSolver()
-    solver.parameters.max_time_in_seconds = 120
+    solver.parameters.max_time_in_seconds = 10
     solver.parameters.num_workers = 8
     solver.parameters.log_search_progress = False
 

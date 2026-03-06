@@ -12,7 +12,10 @@ from app.database import Base
 from app.config import settings
 
 # Import all models so they are registered with Base.metadata
-from app.models import Teacher, Classroom, Course, TeacherCourse, Schedule  # noqa: F401
+from app.models import (  # noqa: F401
+    Teacher, Classroom, Course, TeacherCourse, Schedule,
+    ScheduleRun, PdfFile, UserSchoolMembership,
+)
 
 config = context.config
 

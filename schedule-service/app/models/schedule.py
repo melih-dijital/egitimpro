@@ -8,6 +8,8 @@ class Schedule(Base):
     __tablename__ = "schedules"
 
     id = Column(Integer, primary_key=True, index=True)
+    school_id = Column(Integer, nullable=False, index=True)
+    schedule_run_id = Column(Integer, ForeignKey("schedule_runs.id", ondelete="CASCADE"), nullable=True)
     classroom_id = Column(Integer, ForeignKey("classrooms.id", ondelete="CASCADE"), nullable=False)
     teacher_id = Column(Integer, ForeignKey("teachers.id", ondelete="CASCADE"), nullable=False)
     course_id = Column(Integer, ForeignKey("courses.id", ondelete="CASCADE"), nullable=False)
@@ -17,6 +19,7 @@ class Schedule(Base):
     classroom = relationship("Classroom", back_populates="schedules")
     teacher = relationship("Teacher", back_populates="schedules")
     course = relationship("Course", back_populates="schedules")
+    schedule_run = relationship("ScheduleRun", back_populates="schedules")
 
     def __repr__(self):
-        return f"<Schedule(id={self.id}, day={self.day}, hour={self.hour})>"
+        return f"<Schedule(id={self.id}, day={self.day}, hour={self.hour}, run={self.schedule_run_id})>"
