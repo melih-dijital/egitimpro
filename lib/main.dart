@@ -11,6 +11,10 @@ import 'screens/settings/profile_screen.dart';
 import 'screens/school/school_management_screen.dart';
 import 'theme/duty_planner_theme.dart';
 import 'services/auth_service.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // Added
+import 'screens/welcome_screen.dart'; // Added
+import 'dart:io'; // Added
+import 'package:flutter/foundation.dart'; // Added
 
 // Supabase yapılandırması - Bu değerleri kendi Supabase projenizden alın
 const supabaseUrl = 'https://xbaqyelgopuwmrdpwmte.supabase.co';
@@ -26,11 +30,29 @@ void main() async {
   // Supabase initialization
   await Supabase.initialize(url: supabaseUrl, anonKey: supabaseAnonKey);
 
-  runApp(const MyApp());
+  // İlk açılış kontrolü (Sadece Mobil için)
+  String startRoute = '/';
+  try {
+    // Web değilse ve (Android veya iOS ise)
+    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+      final prefs = await SharedPreferences.getInstance();
+      final hasLaunchedBefore = prefs.getBool('has_launched_before') ?? false;
+
+      if (!hasLaunchedBefore) {
+        startRoute = '/welcome';
+      }
+    }
+  } catch (e) {
+    debugPrint('Platform kontrol hatası: $e');
+  }
+
+  runApp(MyApp(initialRoute: startRoute));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final String initialRoute;
+
+  const MyApp({super.key, required this.initialRoute});
 
   @override
   Widget build(BuildContext context) {
@@ -46,9 +68,10 @@ class MyApp extends StatelessWidget {
       ],
       supportedLocales: const [Locale('tr', 'TR'), Locale('en', 'US')],
       locale: const Locale('tr', 'TR'),
-      initialRoute: '/',
+      initialRoute: initialRoute,
       routes: {
         '/': (context) => const AuthGate(child: MainMenuScreen()),
+        '/welcome': (context) => const WelcomeScreen(), // Added
         '/login': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
         '/profile': (context) => const ProfileScreen(),

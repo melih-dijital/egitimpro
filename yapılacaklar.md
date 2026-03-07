@@ -13,8 +13,6 @@ Giriş sayfasındaki google ve github iconları gerçek iconlar ile değiştiril
 Öğretmen paneli ve kod ile giriş
 
 UI:
-Kilidlerin üstüne gelince animasyon olması. Kilidin ortada büyüyüp sarı renge dönüşmesi
-Giriş sayfası animasyon ile gelmesi
-Giriş sayfasının arkasının transparan olması
-Footer (alt menü) eklenmesi
-Sağ üsteki ksımdaki profil işaretine gelince altında bir menü olması.
+Footer (alt menü) 
+ Gizlilik, kullanım, hakkında
+ Sosyal Medya, İletişim 

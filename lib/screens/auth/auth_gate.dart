@@ -3,6 +3,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter/foundation.dart';
+import 'dart:io';
+import '../welcome_screen.dart';
 import 'locked_panel_screen.dart';
 
 /// Auth durumunu kontrol eden ve yönlendiren widget
@@ -30,7 +33,14 @@ class AuthGate extends StatelessWidget {
           // Kullanıcı giriş yapmış
           return child;
         } else {
-          // Kullanıcı giriş yapmamış - kilitli panel göster
+          // Kullanıcı giriş yapmamış
+
+          // Mobilde (Android/iOS) WelcomeScreen göster
+          if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+            return const WelcomeScreen();
+          }
+
+          // Web/Desktop'ta kilitli panel göster
           return const LockedPanelScreen();
         }
       },

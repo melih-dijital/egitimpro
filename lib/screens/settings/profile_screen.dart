@@ -1,7 +1,11 @@
 /// Profile Screen
 /// Profil ve ayarlar ekranı
 
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../services/auth_service.dart';
 import '../../theme/duty_planner_theme.dart';
@@ -17,9 +21,11 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   final _authService = AuthService();
   final _formKey = GlobalKey<FormState>();
+  final _emailFormKey = GlobalKey<FormState>();
 
   late TextEditingController _nameController;
   late TextEditingController _schoolController;
+  late TextEditingController _newEmailController;
 
   final _currentPasswordController = TextEditingController();
   final _newPasswordController = TextEditingController();
@@ -27,8 +33,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   bool _isLoading = false;
   bool _isChangingPassword = false;
+  bool _isChangingEmail = false;
+  bool _isUploadingPhoto = false;
   String? _successMessage;
   String? _errorMessage;
+  String? _emailErrorMessage;
+  String? _profilePhotoUrl;
+  Uint8List? _profilePhotoBytes;
 
   @override
   void initState() {
@@ -40,12 +51,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _schoolController = TextEditingController(
       text: user?.userMetadata?['school_name'] ?? '',
     );
+    _newEmailController = TextEditingController(text: user?.email ?? '');
+    _profilePhotoUrl = user?.userMetadata?['avatar_url'];
+
+    // Base64 encoded photo check
+    final photoData = user?.userMetadata?['profile_photo'];
+    if (photoData != null && photoData is String && photoData.isNotEmpty) {
+      try {
+        _profilePhotoBytes = base64Decode(photoData);
+      } catch (_) {}
+    }
   }
 
   @override
   void dispose() {
     _nameController.dispose();
     _schoolController.dispose();
+    _newEmailController.dispose();
     _currentPasswordController.dispose();
     _newPasswordController.dispose();
     _confirmPasswordController.dispose();
@@ -74,6 +96,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 _buildEditInfoCard(),
                 const SizedBox(height: 24),
 
+                // E-posta değiştir
+                _buildEmailCard(),
+                const SizedBox(height: 24),
+
                 // Şifre değiştir
                 _buildPasswordCard(),
                 const SizedBox(height: 24),
@@ -94,22 +120,91 @@ class _ProfileScreenState extends State<ProfileScreen> {
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            CircleAvatar(
-              radius: 40,
-              backgroundColor: DutyPlannerColors.primaryLight,
-              child: Text(
-                (user?.userMetadata?['display_name'] ?? user?.email ?? 'U')
-                    .toString()
-                    .substring(0, 1)
-                    .toUpperCase(),
-                style: const TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: DutyPlannerColors.primary,
+            // Profil fotoğrafı
+            Stack(
+              children: [
+                GestureDetector(
+                  onTap: _pickProfilePhoto,
+                  child: Container(
+                    width: 100,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: DutyPlannerColors.primaryLight,
+                      border: Border.all(
+                        color: DutyPlannerColors.primary.withValues(alpha: 0.3),
+                        width: 3,
+                      ),
+                      image: _profilePhotoBytes != null
+                          ? DecorationImage(
+                              image: MemoryImage(_profilePhotoBytes!),
+                              fit: BoxFit.cover,
+                            )
+                          : _profilePhotoUrl != null
+                          ? DecorationImage(
+                              image: NetworkImage(_profilePhotoUrl!),
+                              fit: BoxFit.cover,
+                            )
+                          : null,
+                    ),
+                    child:
+                        (_profilePhotoBytes == null && _profilePhotoUrl == null)
+                        ? Center(
+                            child: Text(
+                              (user?.userMetadata?['display_name'] ??
+                                      user?.email ??
+                                      'U')
+                                  .toString()
+                                  .substring(0, 1)
+                                  .toUpperCase(),
+                              style: const TextStyle(
+                                fontSize: 40,
+                                fontWeight: FontWeight.bold,
+                                color: DutyPlannerColors.primary,
+                              ),
+                            ),
+                          )
+                        : null,
+                  ),
                 ),
-              ),
+                // Kamera ikonu
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: GestureDetector(
+                    onTap: _pickProfilePhoto,
+                    child: Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: DutyPlannerColors.primary,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 2),
+                      ),
+                      child: _isUploadingPhoto
+                          ? const Padding(
+                              padding: EdgeInsets.all(6),
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Icon(
+                              Icons.camera_alt,
+                              size: 16,
+                              color: Colors.white,
+                            ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
+            TextButton(
+              onPressed: _pickProfilePhoto,
+              child: const Text('Fotoğraf Değiştir'),
+            ),
+            const SizedBox(height: 8),
             Text(
               user?.userMetadata?['display_name'] ?? 'Kullanıcı',
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -243,6 +338,99 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : const Text('Bilgileri Güncelle'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmailCard() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Form(
+          key: _emailFormKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Row(
+                children: [
+                  Icon(Icons.email, color: DutyPlannerColors.info),
+                  SizedBox(width: 8),
+                  Text(
+                    'E-posta Değiştir',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+
+              // Yeni E-posta
+              TextFormField(
+                controller: _newEmailController,
+                keyboardType: TextInputType.emailAddress,
+                decoration: const InputDecoration(
+                  labelText: 'Yeni E-posta Adresi',
+                  prefixIcon: Icon(Icons.email_outlined),
+                  border: OutlineInputBorder(),
+                  helperText:
+                      'Değişiklik için doğrulama e-postası gönderilecek',
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'E-posta gerekli';
+                  }
+                  if (!value.contains('@')) {
+                    return 'Geçerli bir e-posta girin';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+
+              if (_emailErrorMessage != null) ...[
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: DutyPlannerColors.error.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.error_outline,
+                        color: DutyPlannerColors.error,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          _emailErrorMessage!,
+                          style: const TextStyle(
+                            color: DutyPlannerColors.error,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
+
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton(
+                  onPressed: _isChangingEmail ? null : _changeEmail,
+                  child: _isChangingEmail
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Text('E-postayı Değiştir'),
                 ),
               ),
             ],
@@ -392,6 +580,61 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  Future<void> _pickProfilePhoto() async {
+    try {
+      final picker = ImagePicker();
+      final XFile? image = await picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 512,
+        maxHeight: 512,
+        imageQuality: 80,
+      );
+
+      if (image == null) return;
+
+      setState(() {
+        _isUploadingPhoto = true;
+      });
+
+      // Read image bytes
+      final bytes = await image.readAsBytes();
+
+      // Convert to base64 for storage in user metadata
+      final base64Image = base64Encode(bytes);
+
+      // Update user metadata with the photo
+      await Supabase.instance.client.auth.updateUser(
+        UserAttributes(data: {'profile_photo': base64Image}),
+      );
+
+      setState(() {
+        _profilePhotoBytes = bytes;
+        _isUploadingPhoto = false;
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Profil fotoğrafı güncellendi'),
+            backgroundColor: DutyPlannerColors.success,
+          ),
+        );
+      }
+    } catch (e) {
+      setState(() {
+        _isUploadingPhoto = false;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Fotoğraf yüklenemedi: $e'),
+            backgroundColor: DutyPlannerColors.error,
+          ),
+        );
+      }
+    }
+  }
+
   Future<void> _updateProfile() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -421,6 +664,53 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (mounted) {
         setState(() {
           _isLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _changeEmail() async {
+    if (!_emailFormKey.currentState!.validate()) return;
+
+    final newEmail = _newEmailController.text.trim();
+    final currentEmail = _authService.currentUser?.email;
+
+    if (newEmail == currentEmail) {
+      setState(() {
+        _emailErrorMessage = 'Yeni e-posta mevcut e-posta ile aynı';
+      });
+      return;
+    }
+
+    setState(() {
+      _isChangingEmail = true;
+      _emailErrorMessage = null;
+    });
+
+    try {
+      await Supabase.instance.client.auth.updateUser(
+        UserAttributes(email: newEmail),
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Doğrulama e-postası gönderildi. Lütfen yeni e-posta adresinizi doğrulayın.',
+            ),
+            backgroundColor: DutyPlannerColors.success,
+            duration: Duration(seconds: 5),
+          ),
+        );
+      }
+    } catch (e) {
+      setState(() {
+        _emailErrorMessage = 'E-posta değiştirilemedi: $e';
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isChangingEmail = false;
         });
       }
     }

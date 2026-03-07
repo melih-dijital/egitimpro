@@ -2,6 +2,7 @@
 /// Giriş ekranı
 
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../services/auth_service.dart';
 import '../../theme/duty_planner_theme.dart';
@@ -260,7 +261,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                   onPressed: _isLoading
                                       ? null
                                       : _handleGoogleLogin,
-                                  icon: const Icon(Icons.g_mobiledata),
+                                  icon: const FaIcon(
+                                    FontAwesomeIcons.google,
+                                    size: 18,
+                                    color: Color(0xFFDB4437),
+                                  ),
                                   label: const Text('Google'),
                                   style: OutlinedButton.styleFrom(
                                     padding: const EdgeInsets.symmetric(
@@ -275,7 +280,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                   onPressed: _isLoading
                                       ? null
                                       : _handleGithubLogin,
-                                  icon: const Icon(Icons.code),
+                                  icon: const FaIcon(
+                                    FontAwesomeIcons.github,
+                                    size: 18,
+                                    color: Color(0xFF333333),
+                                  ),
                                   label: const Text('GitHub'),
                                   style: OutlinedButton.styleFrom(
                                     padding: const EdgeInsets.symmetric(

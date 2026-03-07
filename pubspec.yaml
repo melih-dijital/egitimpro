@@ -53,6 +53,13 @@ dependencies:
   
   # Supabase Authentication
   supabase_flutter: ^2.3.0
+  
+  # Social Icons
+  font_awesome_flutter: ^10.7.0
+  
+  # Image Picker for profile photo
+  image_picker: ^1.0.7
+  shared_preferences: ^2.5.4
 
 dev_dependencies:
   flutter_test:

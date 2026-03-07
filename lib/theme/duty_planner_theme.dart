@@ -20,6 +20,7 @@ class DutyPlannerColors {
   static const Color warning = Color(0xFFFFA726); // Turuncu
   static const Color error = Color(0xFFE53935); // Kırmızı
   static const Color success = Color(0xFF43A047); // Koyu yeşil
+  static const Color info = Color(0xFF2196F3); // Mavi (bilgi)
 
   // Metin renkleri
   static const Color textPrimary = Color(0xFF212121);
