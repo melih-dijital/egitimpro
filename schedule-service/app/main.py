@@ -44,14 +44,29 @@ app.add_middleware(RateLimitMiddleware, max_requests=settings.RATE_LIMIT_PER_MIN
 app.add_middleware(RequestLoggingMiddleware)
 
 # 3. CORS — tarayıcı preflight kontrolü
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=settings.cors_origin_list,
-    allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["Authorization", "X-School-Id", "Content-Type"],
-    expose_headers=["X-Process-Time-Ms", "X-RateLimit-Limit", "X-RateLimit-Remaining"],
-)
+# Starlette'in iç CORS kurallarında bazen wildcard ("*") ve credentials çakışması olabildiğinden,
+# Flutter Web için yüzde yüz çalışan özel bir CORS Middleware yazıyoruz.
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
+from starlette.responses import Response
+
+class CustomCORSMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        if request.method == "OPTIONS":
+            response = Response(status_code=200)
+        else:
+            response = await call_next(request)
+        
+        origin = request.headers.get("origin")
+        if origin:
+            response.headers["Access-Control-Allow-Origin"] = origin
+            response.headers["Access-Control-Allow-Credentials"] = "true"
+            response.headers["Access-Control-Allow-Methods"] = "*"
+            response.headers["Access-Control-Allow-Headers"] = "*"
+            response.headers["Access-Control-Expose-Headers"] = "X-Process-Time-Ms, X-RateLimit-Limit, X-RateLimit-Remaining"
+        return response
+
+app.add_middleware(CustomCORSMiddleware)
 
 
 # ─── Exception Handlers ──────────────────────────────────────────────────────
