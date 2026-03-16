@@ -30,8 +30,9 @@ app = FastAPI(
     title="Ders Programı Oluşturucu",
     description="Okul idarecileri için otomatik haftalık ders programı oluşturma sistemi (Multi-Tenant SaaS)",
     version="2.0.0",
-    docs_url="/docs" if not settings.is_production else None,
-    redoc_url="/redoc" if not settings.is_production else None,
+    docs_url="/docs",
+    redoc_url="/redoc",
+    openapi_url="/openapi.json",
 )
 
 
@@ -144,7 +145,7 @@ def root():
     return {
         "message": "Ders Programı Oluşturucu API",
         "version": "2.0.0",
-        "docs": "/docs" if not settings.is_production else "disabled",
+        "docs": "/docs",
     }
 
 
@@ -157,5 +158,5 @@ async def startup_event():
     logger.info("Environment: %s", settings.APP_ENV)
     logger.info("CORS Origins: %s", settings.cors_origin_list)
     logger.info("Rate Limit: %d req/min", settings.RATE_LIMIT_PER_MINUTE)
-    logger.info("Docs: %s", "enabled" if not settings.is_production else "disabled")
+    logger.info("Docs: %s", "enabled")
     logger.info("=" * 60)
