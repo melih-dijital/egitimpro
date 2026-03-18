@@ -4,6 +4,8 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'screens/butterfly_exam/butterfly_exam_home.dart';
 import 'screens/duty_planner/duty_planner_home_screen.dart';
+import 'screens/schedule_builder/schedule_builder_home_screen.dart';
+import 'screens/schedule_builder/schedule_module_home_page.dart';
 import 'screens/auth/auth_gate.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/register_screen.dart';
@@ -80,6 +82,22 @@ class MyApp extends StatelessWidget {
         '/exam-simulation': (context) =>
             const ButterflyExamHomeScreen(), // Yeni sisteme yönlendir
         '/duty-planner': (context) => const DutyPlannerHomeScreen(),
+        '/schedule-builder': (context) => const ScheduleBuilderHomeScreen(),
+        '/schedule-module': (context) => const ScheduleModuleHomePage(),
+        '/schedule-module/teachers': (context) =>
+            const ScheduleBuilderHomeScreen(initialTab: 1),
+        '/schedule-module/classrooms': (context) =>
+            const ScheduleBuilderHomeScreen(initialTab: 2),
+        '/schedule-module/courses': (context) =>
+            const ScheduleBuilderHomeScreen(initialTab: 3),
+        '/schedule-module/mappings': (context) =>
+            const ScheduleBuilderHomeScreen(initialTab: 4),
+        '/schedule-module/runs': (context) =>
+            const ScheduleBuilderHomeScreen(initialTab: 5),
+        '/schedule-module/history': (context) =>
+            const ScheduleBuilderHomeScreen(initialTab: 6),
+        '/schedule-module/pdfs': (context) =>
+            const ScheduleBuilderHomeScreen(initialTab: 7),
       },
     );
   }
@@ -321,6 +339,16 @@ class MainMenuScreen extends StatelessWidget {
                   subtitle: 'Öğrencileri sınava adil şekilde yerleştirin',
                   color: Colors.indigo,
                   onTap: () => Navigator.pushNamed(context, '/exam-simulation'),
+                ),
+                const SizedBox(height: 12),
+
+                _buildAppCard(
+                  context,
+                  icon: Icons.schedule,
+                  title: 'Ders Programı Oluşturucu',
+                  subtitle: 'Öğretmen, sınıf ve ders verileriyle otomatik program üretin',
+                  color: Colors.deepOrange,
+                  onTap: () => Navigator.pushNamed(context, '/schedule-module'),
                 ),
                 const SizedBox(height: 24),
 
