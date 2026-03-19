@@ -222,6 +222,16 @@ class LockedPanelScreen extends StatelessWidget {
                         subtitle: 'Öğrencileri sınava adil şekilde yerleştirin',
                         color: Colors.indigo,
                       ),
+                      const SizedBox(height: 12),
+
+                      // Ders Programı Oluşturucu (kilitli)
+                      _AnimatedLockedCard(
+                        icon: Icons.schedule,
+                        title: 'Ders Programı Oluşturucu',
+                        subtitle:
+                            'Öğretmen, sınıf ve ders verileriyle program üretin',
+                        color: Colors.deepOrange,
+                      ),
                       const SizedBox(height: 24),
 
                       // Yönetim başlığı
