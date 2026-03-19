@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:printing/printing.dart';
@@ -175,7 +177,7 @@ class _SchedulePdfListScreenState extends State<SchedulePdfListScreen> {
                       ),
                       items: _runs
                           .map(
-                            (run) => DropdownMenuItem(
+                            (run) => DropdownMenuItem<int>(
                               value: run.id,
                               child: Text(
                                 'Run #${run.id} - ${DateFormat('dd.MM HH:mm', 'tr').format(run.createdAt.toLocal())}',
@@ -269,7 +271,7 @@ class _SchedulePdfPreviewScreen extends StatefulWidget {
 }
 
 class _SchedulePdfPreviewScreenState extends State<_SchedulePdfPreviewScreen> {
-  late Future<List<int>> _bytesFuture;
+  late Future<Uint8List> _bytesFuture;
 
   @override
   void initState() {
@@ -281,7 +283,7 @@ class _SchedulePdfPreviewScreenState extends State<_SchedulePdfPreviewScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(widget.title)),
-      body: FutureBuilder<List<int>>(
+      body: FutureBuilder<Uint8List>(
         future: _bytesFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
