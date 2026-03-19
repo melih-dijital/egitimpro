@@ -358,7 +358,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       });
     } catch (e) {
       setState(() {
-        _errorMessage = 'Bir hata oluştu. Lütfen tekrar deneyin.';
+        _errorMessage = AuthService.mapErrorToMessage(e);
       });
     } finally {
       if (mounted) {
@@ -370,6 +370,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   String _getErrorMessage(String message) {
+    if (message.contains('Supabase sunucusuna')) {
+      return message;
+    }
     if (message.contains('User already registered')) {
       return 'Bu e-posta adresi zaten kayıtlı';
     }
@@ -379,3 +382,4 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return message;
   }
 }
+

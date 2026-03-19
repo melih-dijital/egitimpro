@@ -347,7 +347,7 @@ class _LoginScreenState extends State<LoginScreen> {
       });
     } catch (e) {
       setState(() {
-        _errorMessage = 'Bir hata oluştu. Lütfen tekrar deneyin.';
+        _errorMessage = AuthService.mapErrorToMessage(e);
       });
     } finally {
       if (mounted) {
@@ -435,8 +435,8 @@ class _LoginScreenState extends State<LoginScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('E-posta gönderilemedi'),
+          SnackBar(
+            content: Text(AuthService.mapErrorToMessage(e)),
             backgroundColor: DutyPlannerColors.error,
           ),
         );
@@ -445,6 +445,9 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   String _getErrorMessage(String message) {
+    if (message.contains('Supabase sunucusuna')) {
+      return message;
+    }
     if (message.contains('Invalid login credentials')) {
       return 'E-posta veya şifre hatalı';
     }
@@ -457,3 +460,5 @@ class _LoginScreenState extends State<LoginScreen> {
     return message;
   }
 }
+
+

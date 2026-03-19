@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'config/supabase_config.dart';
 import 'screens/butterfly_exam/butterfly_exam_home.dart';
 import 'screens/duty_planner/duty_planner_home_screen.dart';
 import 'screens/schedule_builder/schedule_builder_home_screen.dart';
@@ -19,18 +20,23 @@ import 'dart:io'; // Added
 import 'package:flutter/foundation.dart'; // Added
 
 // Supabase yapılandırması - Bu değerleri kendi Supabase projenizden alın
-const supabaseUrl = 'https://xbaqyelgopuwmrdpwmte.supabase.co';
-const supabaseAnonKey =
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhiYXF5ZWxnb3B1d21yZHB3bXRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg1NzQ4NDAsImV4cCI6MjA4NDE1MDg0MH0.GKGyOt-UbKfacJ-RA3fnZR3iq8tleH5nfUX7a9mOJLs';
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Türkçe tarih formatı için
   await initializeDateFormatting('tr', null);
 
+  if (!SupabaseConfig.hasValidShape) {
+    throw const FormatException(
+      'Supabase ayarlari gecersiz. SUPABASE_URL ve SUPABASE_ANON_KEY degerlerini kontrol edin.',
+    );
+  }
+
   // Supabase initialization
-  await Supabase.initialize(url: supabaseUrl, anonKey: supabaseAnonKey);
+  await Supabase.initialize(
+    url: SupabaseConfig.url,
+    anonKey: SupabaseConfig.anonKey,
+  );
 
   // İlk açılış kontrolü (Sadece Mobil için)
   String startRoute = '/';
