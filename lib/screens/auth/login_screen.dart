@@ -448,6 +448,10 @@ class _LoginScreenState extends State<LoginScreen> {
     if (message.contains('Supabase sunucusuna')) {
       return message;
     }
+    if (message.contains('email rate limit exceeded') ||
+        message.contains('over_email_send_rate_limit')) {
+      return 'Cok fazla e-posta istegi gonderildi. Lutfen biraz bekleyip tekrar deneyin.';
+    }
     if (message.contains('Invalid login credentials')) {
       return 'E-posta veya şifre hatalı';
     }
@@ -460,5 +464,6 @@ class _LoginScreenState extends State<LoginScreen> {
     return message;
   }
 }
+
 
 

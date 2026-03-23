@@ -4,6 +4,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'school_context_service.dart';
+
 /// Supabase kimlik dogrulama servisi
 class AuthService {
   static final AuthService _instance = AuthService._internal();
@@ -30,7 +32,7 @@ class AuthService {
   }) async {
     final redirectTo = _getRedirectUrl();
 
-    return _client.auth.signUp(
+    final response = await _client.auth.signUp(
       email: email,
       password: password,
       emailRedirectTo: redirectTo,
@@ -39,13 +41,24 @@ class AuthService {
         if (schoolName != null) 'school_name': schoolName,
       },
     );
+
+    if (response.session != null) {
+      await _ensureSchoolMembership();
+    }
+
+    return response;
   }
 
   Future<AuthResponse> signInWithEmail({
     required String email,
     required String password,
   }) async {
-    return _client.auth.signInWithPassword(email: email, password: password);
+    final response = await _client.auth.signInWithPassword(
+      email: email,
+      password: password,
+    );
+    await _ensureSchoolMembership();
+    return response;
   }
 
   Future<bool> signInWithGoogle() async {
@@ -83,6 +96,14 @@ class AuthService {
     await _client.auth.signOut();
   }
 
+  Future<void> _ensureSchoolMembership() async {
+    try {
+      await SchoolContextService().bootstrapCurrentSchoolContext();
+    } catch (_) {
+      // Kimlik doğrulama akışı üyelik bootstrap başarısız olsa da devam etsin.
+    }
+  }
+
   String? _getRedirectUrl() {
     if (!kIsWeb) {
       return null;
@@ -95,7 +116,17 @@ class AuthService {
 
   static String mapErrorToMessage(Object error) {
     if (error is AuthException) {
-      return error.message;
+      final message = error.message;
+
+      if (message.contains('email rate limit exceeded')) {
+        return 'Cok fazla dogrulama e-postasi gonderildi. Bir sure bekleyip tekrar deneyin.';
+      }
+
+      if (message.contains('over_email_send_rate_limit')) {
+        return 'E-posta gonderim limiti asildi. Biraz bekleyip yeniden deneyin.';
+      }
+
+      return message;
     }
 
     final message = error.toString();
@@ -108,6 +139,11 @@ class AuthService {
 
     if (message.contains('XMLHttpRequest error')) {
       return 'Tarayici istegi engelledi. Supabase proje adresini ve ag erisimini kontrol edin.';
+    }
+
+    if (message.contains('email rate limit exceeded') ||
+        message.contains('over_email_send_rate_limit')) {
+      return 'E-posta gonderim limiti asildi. Biraz bekleyip yeniden deneyin.';
     }
 
     return 'Bir hata olustu. Lutfen tekrar deneyin.';

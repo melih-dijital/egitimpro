@@ -11,7 +11,7 @@ from app.dependencies import get_school_id
 from app.middleware import RequestLoggingMiddleware, RateLimitMiddleware
 from app.errors import register_exception_handlers
 from app.routers import teachers, classrooms, courses, teacher_courses, schedules
-from app.routers import schedule_runs
+from app.routers import schedule_runs, school_memberships
 
 
 # ─── Logging Setup ────────────────────────────────────────────────────────────
@@ -89,6 +89,11 @@ app.include_router(courses.router, prefix="/api/v1/courses", tags=["Dersler"])
 app.include_router(teacher_courses.router, prefix="/api/v1/teacher-courses", tags=["Öğretmen-Ders Eşleştirme"])
 app.include_router(schedules.router, prefix="/api/v1/schedules", tags=["Ders Programı"])
 app.include_router(schedule_runs.router, prefix="/api/v1/schedule-runs", tags=["Program Versiyonları"])
+app.include_router(
+    school_memberships.router,
+    prefix="/api/v1/school-memberships",
+    tags=["Okul Üyelikleri"],
+)
 
 
 # ─── Secure File Serving ─────────────────────────────────────────────────────

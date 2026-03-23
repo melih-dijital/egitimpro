@@ -373,6 +373,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (message.contains('Supabase sunucusuna')) {
       return message;
     }
+    if (message.contains('email rate limit exceeded') ||
+        message.contains('over_email_send_rate_limit')) {
+      return 'Cok fazla dogrulama e-postasi gonderildi. Lutfen biraz bekleyip tekrar deneyin.';
+    }
     if (message.contains('User already registered')) {
       return 'Bu e-posta adresi zaten kayıtlı';
     }
@@ -382,4 +386,5 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return message;
   }
 }
+
 
