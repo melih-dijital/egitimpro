@@ -50,40 +50,52 @@ ALTER TABLE school_students ENABLE ROW LEVEL SECURITY;
 ALTER TABLE school_rooms ENABLE ROW LEVEL SECURITY;
 
 -- Grades policies
+DROP POLICY IF EXISTS "Users can view own grades" ON school_grades;
 CREATE POLICY "Users can view own grades" ON school_grades FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own grades" ON school_grades;
 CREATE POLICY "Users can insert own grades" ON school_grades FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own grades" ON school_grades;
 CREATE POLICY "Users can update own grades" ON school_grades FOR UPDATE USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own grades" ON school_grades;
 CREATE POLICY "Users can delete own grades" ON school_grades FOR DELETE USING (auth.uid() = user_id);
 
 -- Sections policies (via grade)
+DROP POLICY IF EXISTS "Users can view own sections" ON school_sections;
 CREATE POLICY "Users can view own sections" ON school_sections FOR SELECT 
   USING (EXISTS (SELECT 1 FROM school_grades WHERE id = grade_id AND user_id = auth.uid()));
+DROP POLICY IF EXISTS "Users can insert own sections" ON school_sections;
 CREATE POLICY "Users can insert own sections" ON school_sections FOR INSERT 
   WITH CHECK (EXISTS (SELECT 1 FROM school_grades WHERE id = grade_id AND user_id = auth.uid()));
+DROP POLICY IF EXISTS "Users can update own sections" ON school_sections;
 CREATE POLICY "Users can update own sections" ON school_sections FOR UPDATE 
   USING (EXISTS (SELECT 1 FROM school_grades WHERE id = grade_id AND user_id = auth.uid()));
+DROP POLICY IF EXISTS "Users can delete own sections" ON school_sections;
 CREATE POLICY "Users can delete own sections" ON school_sections FOR DELETE 
   USING (EXISTS (SELECT 1 FROM school_grades WHERE id = grade_id AND user_id = auth.uid()));
 
 -- Students policies (via section > grade)
+DROP POLICY IF EXISTS "Users can view own students" ON school_students;
 CREATE POLICY "Users can view own students" ON school_students FOR SELECT 
   USING (EXISTS (
     SELECT 1 FROM school_sections s 
     JOIN school_grades g ON s.grade_id = g.id 
     WHERE s.id = section_id AND g.user_id = auth.uid()
   ));
+DROP POLICY IF EXISTS "Users can insert own students" ON school_students;
 CREATE POLICY "Users can insert own students" ON school_students FOR INSERT 
   WITH CHECK (EXISTS (
     SELECT 1 FROM school_sections s 
     JOIN school_grades g ON s.grade_id = g.id 
     WHERE s.id = section_id AND g.user_id = auth.uid()
   ));
+DROP POLICY IF EXISTS "Users can update own students" ON school_students;
 CREATE POLICY "Users can update own students" ON school_students FOR UPDATE 
   USING (EXISTS (
     SELECT 1 FROM school_sections s 
     JOIN school_grades g ON s.grade_id = g.id 
     WHERE s.id = section_id AND g.user_id = auth.uid()
   ));
+DROP POLICY IF EXISTS "Users can delete own students" ON school_students;
 CREATE POLICY "Users can delete own students" ON school_students FOR DELETE 
   USING (EXISTS (
     SELECT 1 FROM school_sections s 
@@ -92,7 +104,11 @@ CREATE POLICY "Users can delete own students" ON school_students FOR DELETE
   ));
 
 -- Rooms policies  
+DROP POLICY IF EXISTS "Users can view own rooms" ON school_rooms;
 CREATE POLICY "Users can view own rooms" ON school_rooms FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own rooms" ON school_rooms;
 CREATE POLICY "Users can insert own rooms" ON school_rooms FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own rooms" ON school_rooms;
 CREATE POLICY "Users can update own rooms" ON school_rooms FOR UPDATE USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own rooms" ON school_rooms;
 CREATE POLICY "Users can delete own rooms" ON school_rooms FOR DELETE USING (auth.uid() = user_id);

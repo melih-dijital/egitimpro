@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../models/schedule_builder_models.dart';
@@ -12,6 +13,7 @@ class SchoolContextService {
 
   static const String _baseUrl = 'https://api.dovizlens.online';
   static const String _bootstrapPath = '/api/v1/school-memberships/bootstrap';
+  String? _lastBootstrapError;
 
   SupabaseClient get _client => Supabase.instance.client;
 
@@ -24,11 +26,13 @@ class SchoolContextService {
     final metadata = _metadataOf(user);
     final schoolName = _stringValue(metadata['school_name']) ?? 'Okul Adi';
 
+    _lastBootstrapError = null;
     final bootstrappedContext = await bootstrapCurrentSchoolContext();
     if (bootstrappedContext != null) {
       return bootstrappedContext;
     }
 
+    Object? membershipLookupError;
     try {
       final response = await _client
           .from('user_school_memberships')
@@ -45,8 +49,9 @@ class SchoolContextService {
           role: response['role']?.toString() ?? 'admin',
         );
       }
-    } catch (_) {
-      // Supabase tarafinda tablo yoksa metadata fallback'i kullanilir.
+    } catch (e) {
+      membershipLookupError = e;
+      debugPrint('[SchoolContext] Supabase user_school_memberships sorgusu basarisiz: $e');
     }
 
     final fallbackSchoolId = _intValue(metadata['school_id']);
@@ -58,15 +63,34 @@ class SchoolContextService {
       );
     }
 
-    throw const ScheduleApiException(
-      'Okul uyeligi otomatik olusturulamadi. Lutfen tekrar deneyin.',
+    throw ScheduleApiException(
+      _buildMissingContextMessage(
+        bootstrapError: _lastBootstrapError,
+        membershipLookupError: membershipLookupError,
+      ),
     );
   }
 
   Future<SchoolContext?> bootstrapCurrentSchoolContext() async {
     final user = _client.auth.currentUser;
+    if (user == null) {
+      debugPrint('[SchoolContext] Bootstrap: user null, atlanıyor.');
+      return null;
+    }
+
+    // Her zaman session yenilemeyi dene — token süresi dolmuş olabilir
+    try {
+      final refreshed = await _client.auth.refreshSession();
+      if (refreshed.session != null) {
+        debugPrint('[SchoolContext] Session basariyla yenilendi.');
+      }
+    } catch (e) {
+      debugPrint('[SchoolContext] Session yenileme basarisiz (devam ediliyor): $e');
+    }
+
     final token = _client.auth.currentSession?.accessToken;
-    if (user == null || token == null || token.isEmpty) {
+    if (token == null || token.isEmpty) {
+      debugPrint('[SchoolContext] Bootstrap: token bos, atlanıyor.');
       return null;
     }
 
@@ -90,12 +114,14 @@ class SchoolContextService {
       final response = await dio.post<dynamic>(_bootstrapPath);
       final rawData = response.data;
       if (rawData is! Map) {
+        _lastBootstrapError = 'Bootstrap endpoint gecersiz veri dondurdu.';
         return null;
       }
       final data = Map<String, dynamic>.from(rawData);
 
       final schoolId = _intValue(data['school_id']);
       if (schoolId == null) {
+        _lastBootstrapError = 'Bootstrap endpoint school_id dondurmedi.';
         return null;
       }
 
@@ -111,9 +137,60 @@ class SchoolContextService {
         schoolName: schoolName,
         role: role,
       );
-    } catch (_) {
+    } catch (e) {
+      if (e is DioException) {
+        _lastBootstrapError = _formatDioError(e);
+        debugPrint('[SchoolContext] Bootstrap endpoint basarisiz: '
+            'status=${e.response?.statusCode}, '
+            'body=${e.response?.data}');
+      } else {
+        _lastBootstrapError = e.toString();
+        debugPrint('[SchoolContext] Bootstrap endpoint basarisiz: $e');
+      }
       return null;
     }
+  }
+
+  String _buildMissingContextMessage({
+    String? bootstrapError,
+    Object? membershipLookupError,
+  }) {
+    final details = <String>[
+      if (bootstrapError != null && bootstrapError.isNotEmpty)
+        'Bootstrap hatasi: $bootstrapError',
+      if (membershipLookupError != null)
+        'Supabase uyelik sorgusu hatasi: ${membershipLookupError.toString()}',
+    ];
+
+    final suffix = details.isEmpty ? '' : ' Detay: ${details.join(' | ')}';
+    return 'Okul uyeligi otomatik olusturulamadi. '
+        'Bu genelde backend school-memberships/bootstrap endpointi hata verdiginde '
+        've kullanici icin mevcut bir school_id bulunamadiginda olur.'
+        '$suffix';
+  }
+
+  String _formatDioError(DioException error) {
+    final statusCode = error.response?.statusCode;
+    final responseData = error.response?.data;
+
+    if (responseData is Map) {
+      final detail =
+          responseData['detail']?.toString() ??
+          responseData['message']?.toString();
+      if (detail != null && detail.isNotEmpty) {
+        return 'HTTP $statusCode: $detail';
+      }
+    }
+
+    if (responseData is String && responseData.trim().isNotEmpty) {
+      return 'HTTP $statusCode: ${responseData.trim()}';
+    }
+
+    if (error.message != null && error.message!.trim().isNotEmpty) {
+      return 'HTTP ${statusCode ?? '-'}: ${error.message!.trim()}';
+    }
+
+    return 'HTTP ${statusCode ?? '-'}: Bilinmeyen bootstrap hatasi';
   }
 
   Future<void> _persistSchoolMetadata({
