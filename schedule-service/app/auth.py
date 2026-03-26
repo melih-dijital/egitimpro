@@ -46,7 +46,15 @@ def get_current_user(
             # Fallback to symmetric HS256 secret from .env
             key = settings.SUPABASE_JWT_SECRET
             alg = "HS256"
+    except Exception as e:
+        # Catch errors during header parsing or key retrieval (e.g., malformed token)
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"Token başlığı veya anahtarı alınamadı: {str(e)}",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
+    try:
         payload = jwt.decode(
             token,
             key,
