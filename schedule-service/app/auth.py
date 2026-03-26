@@ -29,10 +29,28 @@ def get_current_user(
     token = credentials.credentials
 
     try:
+        unverified_header = jwt.get_unverified_header(token)
+        alg = unverified_header.get("alg", "HS256")
+
+        if alg == "RS256":
+            import urllib.request
+            import tempfile
+            from jwt import PyJWKClient
+            
+            # Supabase JWKS endpoint
+            jwks_url = f"{settings.SUPABASE_URL.rstrip('/')}/auth/v1/jwks"
+            jwks_client = PyJWKClient(jwks_url)
+            signing_key = jwks_client.get_signing_key_from_jwt(token)
+            key = signing_key.key
+        else:
+            # Fallback to symmetric HS256 secret from .env
+            key = settings.SUPABASE_JWT_SECRET
+            alg = "HS256"
+
         payload = jwt.decode(
             token,
-            settings.SUPABASE_JWT_SECRET,
-            algorithms=["HS256"],
+            key,
+            algorithms=[alg],
             audience="authenticated",
         )
     except jwt.ExpiredSignatureError:
@@ -44,7 +62,7 @@ def get_current_user(
     except jwt.InvalidTokenError as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Geçersiz token: {str(e)}",
+            detail=f"Geçersiz token: {str(e)} (alg: {unverified_header.get('alg', 'belirsiz')})",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
