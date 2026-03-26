@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EduCore — Okul Yönetimi İçin Akıllı Çözümler | OkulAsistan Pro</title>
+  <meta name="description" content="EduCore ile okul yönetimini dijitalleştirin. Ders programı oluşturucu, nöbet planlayıcı ve kelebek sınav sistemi ile okulunuzu kolayca yönetin. Şimdi ücretsiz indirin!">
+  <meta name="keywords" content="okul yönetimi, ders programı, nöbet planlayıcı, kelebek sınav, eğitim yazılımı, okul asistan">
+  <meta name="author" content="EduCore">
+  <meta property="og:title" content="EduCore — Okul Yönetimi İçin Akıllı Çözümler">
+  <meta property="og:description" content="EduCore ile okul yönetimini dijitalleştirin. Ders programı, nöbet planı, sınav dağıtımı ve daha fazlası.">
+  <meta property="og:type" content="website">
+  <link rel="icon" type="image/png" href="assets/images/favicon.png">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Animated Background -->
+  <div class="bg-particles" aria-hidden="true">
+    <div class="orb"></div>
+    <div class="orb"></div>
+    <div class="orb"></div>
+  </div>
+
+  <!-- ===================== NAVBAR ===================== -->
+  <nav class="navbar" id="navbar">
+    <div class="container">
+      <a href="#" class="navbar-brand">
+        <div class="logo-icon">🎓</div>
+        <span>EduCore</span>
+      </a>
+      <div class="navbar-links" id="navLinks">
+        <a href="#features">Özellikler</a>
+        <a href="#platformlar">Platformlar</a>
+        <a href="#nasil-calisir">Nasıl Çalışır</a>
+        <a href="#yorumlar">Yorumlar</a>
+        <a href="#indir">İndir</a>
+        <a href="https://melih-dijital.github.io/egitimpro/" target="_blank" class="btn-primary" id="navCTA">
+          <span>🚀</span> Hemen Kullan
+        </a>
+      </div>
+      <button class="menu-toggle" id="menuToggle" aria-label="Menüyü aç">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ===================== HERO ===================== -->
+  <section class="hero" id="hero">
+    <div class="container">
+      <div class="hero-content">
+        <div class="hero-badge">
+          <span class="badge">🚀 Sürüm 1.0 — Web, Mobil ve Masaüstü</span>
+        </div>
+        <h1 class="hero-title">
+          Okul Yönetimini<br>
+          <span class="gradient-text">Kolaylaştıran</span><br>
+          Akıllı Platform
+        </h1>
+        <p class="hero-description">
+          EduCore ile ders programı oluşturma, nöbet planlama ve sınav dağıtımı gibi karmaşık iş süreçlerini 
+          dakikalar içinde tamamlayın. Web tarayıcınızdan, telefonunuzdan veya bilgisayarınızdan hemen erişin.
+        </p>
+        <div class="hero-actions">
+          <a href="https://melih-dijital.github.io/egitimpro/" target="_blank" class="btn-primary btn-lg btn-webapp">
+            <span>🚀</span> Hemen Kullanmaya Başla
+          </a>
+          <a href="#indir" class="btn-outline btn-lg">
+            <span>⬇</span> Windows İndir
+          </a>
+        </div>
+        <div class="hero-platforms">
+          <span class="platform-tag"><span>🌐</span> Web</span>
+          <span class="platform-tag"><span>📱</span> Mobil</span>
+          <span class="platform-tag"><span>🖥️</span> Windows</span>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <div class="number" id="statModules">3+</div>
+            <div class="label">Akıllı Modül</div>
+          </div>
+          <div class="hero-stat">
+            <div class="number" id="statTime">%90</div>
+            <div class="label">Zaman Tasarrufu</div>
+          </div>
+          <div class="hero-stat">
+            <div class="number" id="statPlatforms">3</div>
+            <div class="label">Platform Desteği</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-visual">
+        <div class="hero-glow"></div>
+        <div class="hero-image-wrapper">
+          <img src="assets/images/hero-dashboard.png" alt="EduCore Dashboard - Okul Yönetim Paneli" loading="eager">
+        </div>
+        <!-- Floating Badges -->
+        <div class="floating-badge top-right">
+          <div class="fb-icon" style="background: linear-gradient(135deg, #4CAF50, #2E7D32);">📅</div>
+          Otomatik Program
+        </div>
+        <div class="floating-badge bottom-left">
+          <div class="fb-icon" style="background: linear-gradient(135deg, #5C6BC0, #3949AB);">🦋</div>
+          Kelebek Sınav
+        </div>
+        <div class="floating-badge bottom-right">
+          <div class="fb-icon" style="background: linear-gradient(135deg, #26A69A, #00897B);">📊</div>
+          PDF Çıktı
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== FEATURES ===================== -->
+  <section class="features" id="features">
+    <div class="container">
+      <div class="section-label reveal">
+        <span class="badge">✨ Özellikler</span>
+      </div>
+      <h2 class="section-title reveal">Her Şey Tek Platformda</h2>
+      <p class="section-subtitle reveal">
+        Okul yönetimi için ihtiyacınız olan tüm araçlar modern ve kullanımı kolay bir arayüzde bir arada.
+      </p>
+
+      <div class="features-grid">
+        <!-- Feature 1: Ders Programı -->
+        <div class="feature-card reveal">
+          <div class="feature-icon orange">📅</div>
+          <h3>Ders Programı Oluşturucu</h3>
+          <p>Öğretmen, sınıf ve ders verilerini girin, yapay zeka destekli algoritma ile çakışmasız ders programınızı otomatik olarak oluşturun.</p>
+          <div class="feature-image">
+            <img src="assets/images/feature-schedule.png" alt="Ders Programı Oluşturucu">
+          </div>
+        </div>
+
+        <!-- Feature 2: Kelebek Sınav -->
+        <div class="feature-card reveal">
+          <div class="feature-icon indigo">🦋</div>
+          <h3>Kelebek Sınav Dağıtım Sistemi</h3>
+          <p>Öğrencileri sınav salonlarına adil ve dengeli bir şekilde yerleştirin. Otomatik dağıtım ile kopya riskini minimuma indirin.</p>
+          <div class="feature-image">
+            <img src="assets/images/feature-exam.png" alt="Kelebek Sınav Dağıtım Sistemi">
+          </div>
+        </div>
+
+        <!-- Feature 3: Nöbet Planlayıcı -->
+        <div class="feature-card reveal">
+          <div class="feature-icon blue">🏫</div>
+          <h3>Kat Nöbetçi Öğretmen Planlayıcı</h3>
+          <p>Boş ders saatlerine göre öğretmenleri katlara adil ve otomatik olarak atayın. Dengeli nöbet çizelgeleri oluşturun.</p>
+          <div class="feature-image">
+            <img src="assets/images/feature-duty.png" alt="Kat Nöbetçi Planlayıcı">
+          </div>
+        </div>
+
+        <!-- Feature 4: Okul Yönetimi -->
+        <div class="feature-card reveal">
+          <div class="feature-icon teal">🏢</div>
+          <h3>Okul Yönetimi</h3>
+          <p>Öğretmen kayıtları, kat bilgileri, sınıf tanımları ve tüm okul verilerinizi tek bir yerden güvenli şekilde yönetin.</p>
+        </div>
+
+        <!-- Feature 5: PDF Export -->
+        <div class="feature-card reveal">
+          <div class="feature-icon green">📄</div>
+          <h3>PDF Çıktı Alma</h3>
+          <p>Oluşturduğunuz tüm program ve planları profesyonel görünümlü PDF dosyaları olarak dışa aktarın ve yazdırın.</p>
+        </div>
+
+        <!-- Feature 6: Bulut -->
+        <div class="feature-card reveal">
+          <div class="feature-icon purple">☁️</div>
+          <h3>Bulut Tabanlı Altyapı</h3>
+          <p>Supabase tabanlı güvenli bulut altyapısı ile verilerinize her yerden erişin. Otomatik yedekleme ve senkronizasyon.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PLATFORMS ===================== -->
+  <section class="platforms" id="platformlar">
+    <div class="container">
+      <div class="section-label reveal">
+        <span class="badge">📱 Her Yerde Erişim</span>
+      </div>
+      <h2 class="section-title reveal">İstediğiniz Platformda Kullanın</h2>
+      <p class="section-subtitle reveal">
+        EduCore'a web tarayıcınızdan, telefonunuzdan veya masaüstü uygulamasından erişin. 
+        Verileriniz bulutta senkronize kalır.
+      </p>
+
+      <div class="platforms-grid">
+        <!-- Web Platform -->
+        <div class="platform-card platform-featured reveal">
+          <div class="platform-recommended">⭐ Önerilen</div>
+          <div class="platform-icon-large">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </svg>
+          </div>
+          <h3>Web Uygulaması</h3>
+          <p>Herhangi bir tarayıcıdan hemen erişin. İndirme veya kurulum gerektirmez.</p>
+          <ul class="platform-features">
+            <li>✓ Kurulum gerektirmez</li>
+            <li>✓ Her cihazdan erişim</li>
+            <li>✓ Her zaman güncel sürüm</li>
+            <li>✓ Anlık başlangıç</li>
+          </ul>
+          <a href="https://melih-dijital.github.io/egitimpro/" target="_blank" class="btn-primary btn-lg btn-webapp platform-cta">
+            <span>🚀</span> Web'den Kullan
+          </a>
+        </div>
+
+        <!-- Mobile Platform -->
+        <div class="platform-card reveal">
+          <div class="platform-icon-large">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="5" y="1" width="14" height="22" rx="3"/>
+              <line x1="12" y1="18" x2="12" y2="18.01" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h3>Mobil Uygulama</h3>
+          <p>Android ve iOS cihazlarınızda tam özellikli mobil deneyim.</p>
+          <ul class="platform-features">
+            <li>✓ Android & iOS desteği</li>
+            <li>✓ Dokunmatik optimizasyonu</li>
+            <li>✓ Hızlı ve hafif</li>
+            <li>✓ Çevrimdışı erişim</li>
+          </ul>
+          <a href="https://melih-dijital.github.io/egitimpro/" target="_blank" class="btn-outline btn-lg platform-cta">
+            <span>📱</span> Mobil'den Aç
+          </a>
+        </div>
+
+        <!-- Windows Platform -->
+        <div class="platform-card reveal">
+          <div class="platform-icon-large">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="2" y="3" width="20" height="14" rx="2"/>
+              <line x1="8" y1="21" x2="16" y2="21"/>
+              <line x1="12" y1="17" x2="12" y2="21"/>
+            </svg>
+          </div>
+          <h3>Windows Masaüstü</h3>
+          <p>Windows 10/11 için native masaüstü uygulamasını indirin.</p>
+          <ul class="platform-features">
+            <li>✓ Native performans</li>
+            <li>✓ Windows 10 & 11</li>
+            <li>✓ Otomatik güncellemeler</li>
+            <li>✓ Sistem entegrasyonu</li>
+          </ul>
+          <a href="#indir" class="btn-outline btn-lg platform-cta">
+            <span>⬇</span> .exe İndir
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== HOW IT WORKS ===================== -->
+  <section class="showcase" id="nasil-calisir">
+    <div class="container">
+      <div class="section-label reveal">
+        <span class="badge">🔄 Nasıl Çalışır</span>
+      </div>
+      <h2 class="section-title reveal">4 Adımda Başlayın</h2>
+      <p class="section-subtitle reveal">
+        EduCore'u kurmak ve kullanmaya başlamak sadece birkaç dakika sürer.
+      </p>
+
+      <div class="steps-grid">
+        <div class="step-card reveal">
+          <div class="step-number">1</div>
+          <h3>Açın veya İndirin</h3>
+          <p>Web tarayıcınızdan hemen açın veya Windows uygulamasını indirin — tercih sizin.</p>
+        </div>
+        <div class="step-card reveal">
+          <div class="step-number">2</div>
+          <h3>Hesap Oluşturun</h3>
+          <p>E-posta adresinizle veya Google hesabınızla hızlıca kayıt olun.</p>
+        </div>
+        <div class="step-card reveal">
+          <div class="step-number">3</div>
+          <h3>Okulunuzu Tanımlayın</h3>
+          <p>Öğretmenlerinizi, sınıflarınızı ve ders bilgilerinizi sisteme ekleyin veya Excel'den içe aktarın.</p>
+        </div>
+        <div class="step-card reveal">
+          <div class="step-number">4</div>
+          <h3>Otomatik Oluşturun</h3>
+          <p>Yapay zeka destekli algoritmamız saniyeler içinde optimum planları oluştursun!</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== DOWNLOAD ===================== -->
+  <section class="download" id="indir">
+    <div class="container">
+      <div class="download-wrapper reveal">
+        <div class="download-icon">⬇️</div>
+        <h2>EduCore'u Hemen Edinin</h2>
+        <p class="download-desc">
+          Web tarayıcınızdan hemen kullanmaya başlayın veya Windows masaüstü uygulamasını indirin.
+          Tüm platformlarda aynı hesapla, aynı verilerle çalışın.
+        </p>
+        <div class="download-actions">
+          <a href="https://melih-dijital.github.io/egitimpro/" target="_blank" class="btn-primary btn-lg btn-webapp" id="webappBtn">
+            <span>🚀</span> Web'den Hemen Kullan
+          </a>
+          <a href="downloads/EduCore-Setup.exe" class="btn-outline btn-lg" id="downloadBtn" download>
+            <span>⬇</span> Windows (.exe) İndir
+          </a>
+        </div>
+        <div class="download-meta">
+          <span>🌐 Web — Anında Erişim</span>
+          <span>📱 Mobil Uyumlu</span>
+          <span>🖥️ Windows 10 / 11</span>
+          <span>🆓 Ücretsiz</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== TESTIMONIALS ===================== -->
+  <section class="testimonials" id="yorumlar">
+    <div class="container">
+      <div class="section-label reveal">
+        <span class="badge">💬 Kullanıcı Yorumları</span>
+      </div>
+      <h2 class="section-title reveal">Eğitimciler Ne Diyor?</h2>
+      <p class="section-subtitle reveal">
+        EduCore'u kullanan okul yöneticileri ve öğretmenlerin deneyimlerini keşfedin.
+      </p>
+
+      <div class="testimonials-grid">
+        <div class="testimonial-card reveal">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">
+            "Ders programı oluşturmak eskiden günlerimizi alıyordu. EduCore ile 10 dakikada hazır! 
+            Gerçekten hayat kurtarıcı bir yazılım."
+          </p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">AK</div>
+            <div class="testimonial-info">
+              <div class="name">Ahmet K.</div>
+              <div class="role">Müdür Yardımcısı, Ankara</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card reveal">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">
+            "Kelebek sınav dağıtım sistemi mükemmel çalışıyor. Öğrencilerin sınav yerleşimini 
+            adil ve otomatik yapıyor. Kesinlikle tavsiye ederim."
+          </p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">FD</div>
+            <div class="testimonial-info">
+              <div class="name">Fatma D.</div>
+              <div class="role">Matematik Öğretmeni, İstanbul</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card reveal">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">
+            "Nöbet çizelgesi oluşturmak artık sorun değil. Boş derslere göre otomatik atama 
+            yapıyor ve kimse adaletsizlikten şikayet etmiyor."
+          </p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">MÖ</div>
+            <div class="testimonial-info">
+              <div class="name">Mehmet Ö.</div>
+              <div class="role">Okul Müdürü, İzmir</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== CTA ===================== -->
+  <section class="cta">
+    <div class="container">
+      <h2 class="reveal">Okulunuzu Geleceğe<br>Hazırlayın</h2>
+      <p class="reveal">
+        EduCore ile okul yönetiminde yeni bir döneme adım atın. Kurulum olmadan, 
+        web tarayıcınızdan hemen kullanmaya başlayın.
+      </p>
+      <div class="cta-actions reveal">
+        <a href="https://melih-dijital.github.io/egitimpro/" target="_blank" class="btn-primary btn-lg btn-webapp">
+          <span>🚀</span> Ücretsiz Kullanmaya Başla
+        </a>
+        <a href="#indir" class="btn-outline btn-lg">
+          <span>⬇</span> Windows İndir
+        </a>
+        <a href="mailto:destek@educore.app" class="btn-outline btn-lg">
+          <span>📧</span> Bize Ulaşın
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <a href="#" class="navbar-brand">
+            <div class="logo-icon">🎓</div>
+            <span>EduCore</span>
+          </a>
+          <p>
+            Eğitim kurumları için geliştirilmiş akıllı okul yönetim platformu. 
+            Ders programı, nöbet planı, sınav dağıtımı ve daha fazlası.
+          </p>
+        </div>
+
+        <div class="footer-col">
+          <h4>Ürün</h4>
+          <a href="#features">Özellikler</a>
+          <a href="#platformlar">Platformlar</a>
+          <a href="#indir">İndir</a>
+          <a href="https://melih-dijital.github.io/egitimpro/" target="_blank">Web Uygulaması</a>
+        </div>
+
+        <div class="footer-col">
+          <h4>Destek</h4>
+          <a href="#">Yardım Merkezi</a>
+          <a href="#">Sıkça Sorulan Sorular</a>
+          <a href="mailto:destek@educore.app">İletişim</a>
+          <a href="#">Dokümantasyon</a>
+        </div>
+
+        <div class="footer-col">
+          <h4>Yasal</h4>
+          <a href="#">Gizlilik Politikası</a>
+          <a href="#">Kullanım Koşulları</a>
+          <a href="#">KVKK</a>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span>&copy; 2026 EduCore. Tüm hakları saklıdır.</span>
+        <div class="footer-social">
+          <a href="#" aria-label="Twitter" title="Twitter">𝕏</a>
+          <a href="#" aria-label="GitHub" title="GitHub">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+            </svg>
+          </a>
+          <a href="#" aria-label="LinkedIn" title="LinkedIn">in</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===================== SCRIPTS ===================== -->
+  <script>
+    // ===== Navbar scroll effect =====
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 40);
+    });
+
+    // ===== Mobile menu toggle =====
+    const menuToggle = document.getElementById('menuToggle');
+    const navLinks = document.getElementById('navLinks');
+
+    menuToggle.addEventListener('click', () => {
+      menuToggle.classList.toggle('active');
+      navLinks.classList.toggle('active');
+      document.body.style.overflow = navLinks.classList.contains('active') ? 'hidden' : '';
+    });
+
+    // Close menu on link click
+    navLinks.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        menuToggle.classList.remove('active');
+        navLinks.classList.remove('active');
+        document.body.style.overflow = '';
+      });
+    });
+
+    // ===== Scroll reveal =====
+    const revealElements = document.querySelectorAll('.reveal');
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry, index) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => {
+            entry.target.classList.add('visible');
+          }, index * 80); // Stagger effect
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+    revealElements.forEach(el => revealObserver.observe(el));
+
+    // ===== Smooth scroll for anchor links =====
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        const href = this.getAttribute('href');
+        if (href === '#') return;
+        e.preventDefault();
+        const target = document.querySelector(href);
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+
+    // ===== Counter animation for stats =====
+    function animateCounter(element, target, suffix = '') {
+      let current = 0;
+      const increment = target / 40;
+      const interval = setInterval(() => {
+        current += increment;
+        if (current >= target) {
+          current = target;
+          clearInterval(interval);
+        }
+        element.textContent = Math.floor(current) + suffix;
+      }, 40);
+    }
+
+    // Observe hero stats
+    const heroSection = document.querySelector('.hero');
+    const heroObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          // Stats are already displayed as text, 
+          // just add a subtle pulse animation
+          document.querySelectorAll('.hero-stat .number').forEach(el => {
+            el.style.animation = 'fadeInUp 0.6s ease both';
+          });
+          heroObserver.unobserve(entry.target);
+        }
+      });
+    });
+    heroObserver.observe(heroSection);
+
+    // ===== Parallax on hero visual =====
+    const heroVisual = document.querySelector('.hero-visual');
+    if (window.innerWidth > 768) {
+      window.addEventListener('scroll', () => {
+        const scrolled = window.scrollY;
+        if (scrolled < window.innerHeight) {
+          heroVisual.style.transform = `translateY(${scrolled * 0.08}px)`;
+        }
+      });
+    }
+  </script>
+</body>
+</html>

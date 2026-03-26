@@ -65,6 +65,15 @@ class ScheduleModuleApiClient {
             );
           }
         },
+        onError: (error, handler) {
+          // Debug: Detaylı hata bilgilerini konsola yazdır
+          final uri = error.requestOptions.uri;
+          final status = error.response?.statusCode;
+          final body = error.response?.data;
+          print('[ScheduleAPI] ❌ ${error.requestOptions.method} $uri '
+              '→ HTTP $status | body: $body | type: ${error.type}');
+          handler.next(error);
+        },
       ),
     );
   }
@@ -141,6 +150,7 @@ class ScheduleModuleApiClient {
 
     if (error is DioException) {
       final responseData = error.response?.data;
+      final statusCode = error.response?.statusCode;
       String message = 'İşlem başarısız oldu';
 
       if (responseData is Map) {
@@ -156,7 +166,19 @@ class ScheduleModuleApiClient {
         message = error.message!;
       }
 
-      return ScheduleApiException(message, statusCode: error.response?.statusCode);
+      // Bağlantı hatalarında daha açıklayıcı mesaj ver
+      if (error.type == DioExceptionType.connectionTimeout ||
+          error.type == DioExceptionType.receiveTimeout ||
+          error.type == DioExceptionType.sendTimeout) {
+        message = 'Sunucuya bağlanılamıyor (zaman aşımı). Lütfen internet bağlantınızı kontrol edin.';
+      } else if (error.type == DioExceptionType.connectionError) {
+        message = 'Sunucuya bağlanılamıyor. Lütfen internet bağlantınızı kontrol edin.';
+      } else if (statusCode != null && message == 'İşlem başarısız oldu') {
+        // Status code varsa ama mesaj hâlâ jenerikse, status code'u ekle
+        message = 'Sunucu hatası (HTTP $statusCode). Lütfen tekrar deneyin.';
+      }
+
+      return ScheduleApiException(message, statusCode: statusCode);
     }
 
     return ScheduleApiException(error.toString());
