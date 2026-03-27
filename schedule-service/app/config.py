@@ -22,6 +22,7 @@ class Settings(BaseSettings):
     SUPABASE_JWT_SECRET: str = ""
     SUPABASE_URL: str = ""
     SUPABASE_ANON_KEY: str = ""
+    SUPABASE_PUBLIC_KEY: str = ""
 
     # ─── CORS ──────────────────────────────────────────────────────────────
     CORS_ORIGINS: str = "*"  # Comma-separated: "https://app.example.com,https://admin.example.com"
