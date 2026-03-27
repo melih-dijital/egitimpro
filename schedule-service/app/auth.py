@@ -38,15 +38,19 @@ def get_current_user(
             
             if not settings.SUPABASE_URL or "your-project" in settings.SUPABASE_URL:
                 raise Exception("Sunucunun .env dosyasındaki SUPABASE_URL ayarı eksik veya geçersiz.")
+            
+            if not getattr(settings, "SUPABASE_ANON_KEY", None) or "your-supabase-anon-key-here" in settings.SUPABASE_ANON_KEY:
+                raise Exception("Sunucunun .env dosyasında SUPABASE_ANON_KEY eksik. ES256/RS256 doğrulaması için bu anahtar gereklidir.")
 
             # Supabase JWKS endpoint
             jwks_url = f"{settings.SUPABASE_URL.rstrip('/')}/auth/v1/jwks"
             try:
-                jwks_client = PyJWKClient(jwks_url)
+                # Supabase REST API requires the apikey (anon key) in headers
+                jwks_client = PyJWKClient(jwks_url, headers={"apikey": settings.SUPABASE_ANON_KEY})
                 signing_key = jwks_client.get_signing_key_from_jwt(token)
                 key = signing_key.key
             except PyJWKClientError as e:
-                raise Exception(f"JWKS indirilemedi (.env SUPABASE_URL ayarınızı kontrol edin): {str(e)}")
+                raise Exception(f"JWKS indirilemedi (.env SUPABASE_ANON_KEY ve URL ayarınızı kontrol edin): {str(e)}")
         else:
             # Fallback to symmetric HS256 secret from .env
             key = settings.SUPABASE_JWT_SECRET
