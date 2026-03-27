@@ -50,7 +50,11 @@ def get_current_user(
                 signing_key = jwks_client.get_signing_key_from_jwt(token)
                 key = signing_key.key
             except PyJWKClientError as e:
-                raise Exception(f"JWKS indirilemedi (.env SUPABASE_ANON_KEY ve URL ayarınızı kontrol edin): {str(e)}")
+                raise Exception(
+                    f"JWKS indirilemedi. Lütfen .env dosyanızdaki SUPABASE_URL "
+                    f"değerinin tam olarak 'https://<id>.supabase.co' olduğundan emin olun "
+                    f"(Şu an denenen adres: {jwks_url}). Hata Detayı: {str(e)}"
+                )
         else:
             # Fallback to symmetric HS256 secret from .env
             key = settings.SUPABASE_JWT_SECRET
