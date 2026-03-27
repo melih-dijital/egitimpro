@@ -32,9 +32,7 @@ def get_current_user(
         unverified_header = jwt.get_unverified_header(token)
         alg = unverified_header.get("alg", "HS256")
 
-        if alg == "RS256":
-            import urllib.request
-            import tempfile
+        if alg in ["RS256", "ES256"]:
             from jwt import PyJWKClient
             
             # Supabase JWKS endpoint
