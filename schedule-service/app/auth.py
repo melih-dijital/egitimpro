@@ -34,12 +34,19 @@ def get_current_user(
 
         if alg in ["RS256", "ES256"]:
             from jwt import PyJWKClient
+            from jwt.exceptions import PyJWKClientError
             
+            if not settings.SUPABASE_URL or "your-project" in settings.SUPABASE_URL:
+                raise Exception("Sunucunun .env dosyasındaki SUPABASE_URL ayarı eksik veya geçersiz.")
+
             # Supabase JWKS endpoint
             jwks_url = f"{settings.SUPABASE_URL.rstrip('/')}/auth/v1/jwks"
-            jwks_client = PyJWKClient(jwks_url)
-            signing_key = jwks_client.get_signing_key_from_jwt(token)
-            key = signing_key.key
+            try:
+                jwks_client = PyJWKClient(jwks_url)
+                signing_key = jwks_client.get_signing_key_from_jwt(token)
+                key = signing_key.key
+            except PyJWKClientError as e:
+                raise Exception(f"JWKS indirilemedi (.env SUPABASE_URL ayarınızı kontrol edin): {str(e)}")
         else:
             # Fallback to symmetric HS256 secret from .env
             key = settings.SUPABASE_JWT_SECRET
