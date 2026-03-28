@@ -2,12 +2,13 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 
+import '../config/schedule_api_config.dart';
 import '../models/schedule_builder_models.dart';
 import 'auth_service.dart';
 import 'school_context_service.dart';
 
 class ScheduleModuleApiClient {
-  static const String baseUrl = 'https://api.dovizlens.online';
+  static const String baseUrl = ScheduleApiConfig.baseUrl;
 
   final AuthService _authService;
   final SchoolContextService _schoolContextService;

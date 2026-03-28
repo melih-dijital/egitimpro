@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../config/schedule_api_config.dart';
 import '../models/schedule_builder_models.dart';
 
 class SchoolContextService {
@@ -11,7 +12,7 @@ class SchoolContextService {
 
   SchoolContextService._internal();
 
-  static const String _baseUrl = 'https://api.dovizlens.online';
+  static const String _baseUrl = ScheduleApiConfig.baseUrl;
   static const String _bootstrapPath = '/api/v1/school-memberships/bootstrap';
   String? _lastBootstrapError;
 
