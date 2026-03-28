@@ -38,36 +38,35 @@ app = FastAPI(
 
 # ─── Middleware (sıralama önemli: ilk eklenen en dışta çalışır) ───────────────
 
-# 1. Rate Limiting — en dışta, request'i ilk kontrol eden
+# 1. CORS — en dışta olmalı ki hata/preflight cevaplarına da header eklensin
+cors_kwargs = {
+    "allow_credentials": True,
+    "allow_methods": ["*"],
+    "allow_headers": ["*"],
+    "expose_headers": [
+        "X-Process-Time-Ms",
+        "X-RateLimit-Limit",
+        "X-RateLimit-Remaining",
+    ],
+}
+if settings.cors_origin_list == ["*"]:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origin_regex=r"https?://.*",
+        **cors_kwargs,
+    )
+else:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.cors_origin_list,
+        **cors_kwargs,
+    )
+
+# 2. Rate Limiting
 app.add_middleware(RateLimitMiddleware, max_requests=settings.RATE_LIMIT_PER_MINUTE)
 
-# 2. Request Logging — her request'i loglar
+# 3. Request Logging
 app.add_middleware(RequestLoggingMiddleware)
-
-# 3. CORS — tarayıcı preflight kontrolü
-# Starlette'in iç CORS kurallarında bazen wildcard ("*") ve credentials çakışması olabildiğinden,
-# Flutter Web için yüzde yüz çalışan özel bir CORS Middleware yazıyoruz.
-from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.requests import Request
-from starlette.responses import Response
-
-class CustomCORSMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next):
-        if request.method == "OPTIONS":
-            response = Response(status_code=200)
-        else:
-            response = await call_next(request)
-        
-        origin = request.headers.get("origin")
-        if origin:
-            response.headers["Access-Control-Allow-Origin"] = origin
-            response.headers["Access-Control-Allow-Credentials"] = "true"
-            response.headers["Access-Control-Allow-Methods"] = "*"
-            response.headers["Access-Control-Allow-Headers"] = "*"
-            response.headers["Access-Control-Expose-Headers"] = "X-Process-Time-Ms, X-RateLimit-Limit, X-RateLimit-Remaining"
-        return response
-
-app.add_middleware(CustomCORSMiddleware)
 
 
 # ─── Exception Handlers ──────────────────────────────────────────────────────
