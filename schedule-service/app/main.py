@@ -1,20 +1,18 @@
-import os
 import logging
+import os
 
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 
-from app.config import settings
 from app.auth import get_current_user
+from app.config import settings
 from app.dependencies import get_school_id
-from app.middleware import RequestLoggingMiddleware, RateLimitMiddleware
 from app.errors import register_exception_handlers
-from app.routers import teachers, classrooms, courses, teacher_courses, schedules
-from app.routers import schedule_runs, school_memberships
+from app.middleware import RateLimitMiddleware, RequestLoggingMiddleware
+from app.routers import classrooms, courses, schedule_runs, schedules
+from app.routers import school_memberships, teacher_courses, teachers
 
-
-# ─── Logging Setup ────────────────────────────────────────────────────────────
 
 logging.basicConfig(
     level=getattr(logging, settings.LOG_LEVEL.upper(), logging.INFO),
@@ -24,11 +22,9 @@ logging.basicConfig(
 logger = logging.getLogger("schedule_api")
 
 
-# ─── App ──────────────────────────────────────────────────────────────────────
-
 app = FastAPI(
-    title="Ders Programı Oluşturucu",
-    description="Okul idarecileri için otomatik haftalık ders programı oluşturma sistemi (Multi-Tenant SaaS)",
+    title="Ders Programi Olusturucu",
+    description="Okul idarecileri icin otomatik haftalik ders programi olusturma sistemi",
     version="2.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
@@ -36,9 +32,6 @@ app = FastAPI(
 )
 
 
-# ─── Middleware (sıralama önemli: ilk eklenen en dışta çalışır) ───────────────
-
-# 1. CORS — en dışta olmalı ki hata/preflight cevaplarına da header eklensin
 cors_kwargs = {
     "allow_credentials": True,
     "allow_methods": ["*"],
@@ -49,53 +42,41 @@ cors_kwargs = {
         "X-RateLimit-Remaining",
     ],
 }
-if settings.cors_origin_list == ["*"]:
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origin_regex=r"https?://.*",
-        **cors_kwargs,
-    )
-else:
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=settings.cors_origin_list,
-        **cors_kwargs,
-    )
 
-# 2. Rate Limiting
+
 app.add_middleware(RateLimitMiddleware, max_requests=settings.RATE_LIMIT_PER_MINUTE)
-
-# 3. Request Logging
 app.add_middleware(RequestLoggingMiddleware)
 
-
-# ─── Exception Handlers ──────────────────────────────────────────────────────
 
 register_exception_handlers(app)
 
 
-# ─── Files Directory ─────────────────────────────────────────────────────────
-
-FILES_DIR = os.path.realpath(os.path.join(os.path.dirname(os.path.dirname(__file__)), "files"))
+FILES_DIR = os.path.realpath(
+    os.path.join(os.path.dirname(os.path.dirname(__file__)), "files")
+)
 os.makedirs(FILES_DIR, exist_ok=True)
 
 
-# ─── Routers ─────────────────────────────────────────────────────────────────
-
-app.include_router(teachers.router, prefix="/api/v1/teachers", tags=["Öğretmenler"])
-app.include_router(classrooms.router, prefix="/api/v1/classrooms", tags=["Sınıflar"])
+app.include_router(teachers.router, prefix="/api/v1/teachers", tags=["Ogretmenler"])
+app.include_router(classrooms.router, prefix="/api/v1/classrooms", tags=["Siniflar"])
 app.include_router(courses.router, prefix="/api/v1/courses", tags=["Dersler"])
-app.include_router(teacher_courses.router, prefix="/api/v1/teacher-courses", tags=["Öğretmen-Ders Eşleştirme"])
-app.include_router(schedules.router, prefix="/api/v1/schedules", tags=["Ders Programı"])
-app.include_router(schedule_runs.router, prefix="/api/v1/schedule-runs", tags=["Program Versiyonları"])
+app.include_router(
+    teacher_courses.router,
+    prefix="/api/v1/teacher-courses",
+    tags=["Ogretmen-Ders Eslesme"],
+)
+app.include_router(schedules.router, prefix="/api/v1/schedules", tags=["Ders Programi"])
+app.include_router(
+    schedule_runs.router,
+    prefix="/api/v1/schedule-runs",
+    tags=["Program Versiyonlari"],
+)
 app.include_router(
     school_memberships.router,
     prefix="/api/v1/school-memberships",
-    tags=["Okul Üyelikleri"],
+    tags=["Okul Uyelikleri"],
 )
 
-
-# ─── Secure File Serving ─────────────────────────────────────────────────────
 
 @app.get("/files/{school_id}/{run_id}/{filename}", tags=["Dosyalar"])
 def get_file(
@@ -105,38 +86,27 @@ def get_file(
     current_user: dict = Depends(get_current_user),
     authorized_school_id: int = Depends(get_school_id),
 ):
-    """
-    PDF dosyalarını güvenli şekilde servis eder.
-
-    - Authorization zorunlu
-    - school_id kontrolü yapılır
-    - Path traversal koruması
-    """
     if school_id != authorized_school_id:
-        raise HTTPException(status_code=403, detail="Bu okula ait dosyalara erişim yetkiniz yok")
+        raise HTTPException(status_code=403, detail="Bu okula ait dosyalara erisim yetkiniz yok")
 
     if ".." in filename or "/" in filename or "\\" in filename or "\x00" in filename:
-        raise HTTPException(status_code=400, detail="Geçersiz dosya adı")
+        raise HTTPException(status_code=400, detail="Gecersiz dosya adi")
 
-    filepath = os.path.realpath(os.path.join(FILES_DIR, str(school_id), str(run_id), filename))
+    filepath = os.path.realpath(
+        os.path.join(FILES_DIR, str(school_id), str(run_id), filename)
+    )
 
     if not filepath.startswith(FILES_DIR + os.sep) and filepath != FILES_DIR:
-        raise HTTPException(status_code=403, detail="Erişim engellendi")
+        raise HTTPException(status_code=403, detail="Erisim engellendi")
 
     if not os.path.isfile(filepath):
-        raise HTTPException(status_code=404, detail="Dosya bulunamadı")
+        raise HTTPException(status_code=404, detail="Dosya bulunamadi")
 
     return FileResponse(filepath, media_type="application/pdf", filename=filename)
 
 
-# ─── System ──────────────────────────────────────────────────────────────────
-
 @app.get("/health", tags=["System"])
 def health_check():
-    """
-    Sistem sağlık kontrolü.
-    Load balancer / Docker healthcheck tarafından kullanılır.
-    """
     return {
         "status": "ok",
         "version": "2.0.0",
@@ -147,20 +117,32 @@ def health_check():
 @app.get("/", tags=["System"])
 def root():
     return {
-        "message": "Ders Programı Oluşturucu API",
+        "message": "Ders Programi Olusturucu API",
         "version": "2.0.0",
         "docs": "/docs",
     }
 
 
-# ─── Startup ─────────────────────────────────────────────────────────────────
-
 @app.on_event("startup")
 async def startup_event():
     logger.info("=" * 60)
-    logger.info("Ders Programı API başlatılıyor...")
+    logger.info("Ders Programi API baslatiliyor...")
     logger.info("Environment: %s", settings.APP_ENV)
     logger.info("CORS Origins: %s", settings.cors_origin_list)
     logger.info("Rate Limit: %d req/min", settings.RATE_LIMIT_PER_MINUTE)
-    logger.info("Docs: %s", "enabled")
+    logger.info("Docs: enabled")
     logger.info("=" * 60)
+
+
+if settings.cors_origin_list == ["*"]:
+    app = CORSMiddleware(
+        app,
+        allow_origin_regex=r"https?://.*",
+        **cors_kwargs,
+    )
+else:
+    app = CORSMiddleware(
+        app,
+        allow_origins=settings.cors_origin_list,
+        **cors_kwargs,
+    )
