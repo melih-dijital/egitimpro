@@ -22,7 +22,6 @@ RUN groupadd -r appuser && useradd -r -g appuser -d /app -s /sbin/nologin appuse
 COPY . .
 
 RUN mkdir -p /app/files /app/logs \
-    && chmod +x /app/entrypoint.sh \
     && chown -R appuser:appuser /app
 
 USER appuser
@@ -32,4 +31,4 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')" || exit 1
 
-CMD ["/app/entrypoint.sh"]
+CMD ["sh", "-lc", "alembic upgrade head && exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 1 --timeout-keep-alive 30 --timeout-graceful-shutdown 10 --access-log --log-level info"]
